@@ -7,33 +7,42 @@ using System.Linq;
 
 namespace HkwgConverter.Core
 {
+    /// <summary>
+    /// Implements the input conversion logic
+    /// </summary>
     public class InputConverter
     {
-        private FileInfo csvFile;      
+        #region fields
 
-        public InputConverter(string fileName)
-        {
-            if (!File.Exists(fileName))
-                throw new ArgumentException(String.Format("The given file '{0}' does not exist", fileName));
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private AppDataAccessor appDataAccessor;
 
-            csvFile = new FileInfo(fileName);                                   
+        #endregion
+
+        #region ctor
+
+        public InputConverter()
+        {            
+            appDataAccessor = new AppDataAccessor(Settings.Default.AppDataFolder);                                          
         }
+
+        #endregion
 
         #region private methods
 
-        private List<Model.HkwgInputItem> ParseInput()
+        private List<HkwgInputItem> ReadCsvFile(string fileName)
         {
-            var lines = File.ReadAllLines(this.csvFile.FullName)
+            var lines = File.ReadAllLines(fileName)
                 .Skip(2)
                 .Select(x => x.Split(';'))
                 .Select(x => new Model.HkwgInputItem()
-                       {
-                           Time = x[0],
-                           FPLast = Decimal.Parse(x[1]),
-                           FlexPos = Decimal.Parse(x[2]),
-                           FlexNeg = Decimal.Parse(x[3]),
-                           MarginalCost = Decimal.Parse(x[4]),
-                       });
+                {
+                    Time = x[0],
+                    FPLast = decimal.Parse(x[1]),
+                    FlexPos = decimal.Parse(x[2]),
+                    FlexNeg = decimal.Parse(x[3]),
+                    MarginalCost = decimal.Parse(x[4]),
+                });
 
             return lines.ToList();
         }
@@ -43,7 +52,7 @@ namespace HkwgConverter.Core
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        private List<Model.HkwgInputItem> Transform(List<Model.HkwgInputItem> content)
+        private List<HkwgInputItem> Transform(List<Model.HkwgInputItem> content)
         {
             for (int i = 0; i < content.Count; i+=4)
             {
@@ -64,14 +73,14 @@ namespace HkwgConverter.Core
             return content;
         }
 
-        private void GenerateKissFile(List<HkwgInputItem> data, bool isPurchase)
+        private string GenerateKissFile(FileInfo csvFile, List<HkwgInputItem> data, DateTime deliveryDay, int nextVersion, bool isPurchase)
         {
             MemoryStream ms = new MemoryStream(Resource.Template_Kiss_Input);
 
             XLWorkbook workBook = new XLWorkbook(ms);
-            var worksheet = workBook.Worksheets.Skip(1).FirstOrDefault();
 
-            var deliveryDay = DateTime.Parse(data.FirstOrDefault().Time).Date;
+            var worksheet = workBook.Worksheets.Skip(1).FirstOrDefault();
+          
             WriteHeaderCells(worksheet, deliveryDay.ToString(), isPurchase);
 
             decimal totalFlexPos = 0.0m;
@@ -88,14 +97,18 @@ namespace HkwgConverter.Core
             worksheet.Cell("C114").SetValue(totalFlexPos / 4);
 
 
+
             string outputFileName = String.Format("{0}_{1}_HKWG_{2}.xlsx",
                 deliveryDay.ToString("yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture),
                 isPurchase ? "FLEXPOS" : "FLEXNEG",
-                "01");
+                nextVersion.ToString("D2"));
 
 
             workBook.SaveAs(Path.Combine(csvFile.Directory.FullName, outputFileName), false);
+
+            return outputFileName;
         }
+        
 
         private static void WriteHeaderCells(IXLWorksheet worksheet, string deliveryDay, bool isPurchase)
         {
@@ -131,23 +144,87 @@ namespace HkwgConverter.Core
                 worksheet.Cell("D7").Value = Constants.CottbusSettlementArea;                
             }            
         }
+             
+
+        /// <summary>
+        /// Performs the conversion process from HKWG CSV into the KISS-Excel Format
+        /// </summary>
+        private void ProcessFile(FileInfo csvFile)
+        {            
+            string flexPosFile = null;
+            string flexNegFile = null;
+
+            var content = this.ReadCsvFile(csvFile.FullName);
+
+            content = this.Transform(content);
+
+            var deliveryDay = DateTime.Parse(content.FirstOrDefault().Time).Date;
+            var version = appDataAccessor.GetNextInputVersionNumer(deliveryDay);
+
+            // Only generate the file if there any non zero demand values
+            if (content.Any(x => x.FlexPos != 0.0m))
+            {
+                flexPosFile = this.GenerateKissFile(csvFile, content, deliveryDay, version, true);
+            }
+
+            // Only generate the file if there any non zero demand values
+            if (content.Any(x => x.FlexNeg != 0.0m))
+            {
+                flexNegFile = this.GenerateKissFile(csvFile, content, deliveryDay, version, false);
+            }
+
+            var appDataItem = new AppDataInputItem()
+            {
+                CsvFile = csvFile.Name,
+                DeliveryDay = deliveryDay,
+                FlexPosFile = flexPosFile,
+                FlexNegFile = flexNegFile,
+                Timestamp = DateTime.Now,
+                Version = version,
+            };
+
+            this.appDataAccessor.AppendInputLogItem(appDataItem);
+        }
 
         #endregion
 
         #region interface
 
         /// <summary>
-        /// Performs the conversion process from HKWG CSV into the KISS-Excel Format
+        /// Starts the input conversion process
         /// </summary>
-        public void Execute()
+        public void Run()
         {
-            var content = this.ParseInput();
+            log.Info("Suche nach neuen Dateien.");
+            var filesToProcess = Directory.GetFiles(Settings.Default.InputWatchFolder, "*.csv");
 
-            content = this.Transform(content);
+            if(filesToProcess.Count() > 0)
+            {
+                log.InfoFormat("Es wurden {0} neue Dateien im Input-Ordner gefunden. Starte Konvertierung...", filesToProcess.Count());
+            }
+            else
+            {
+                log.InfoFormat("Es wurden keine neuen Dateien im Input-Ordner gefunden.");
+            }            
 
-            this.GenerateKissFile(content, true);
+            foreach (var item in filesToProcess)
+            {
+                FileInfo file = new FileInfo(item);
+                try
+                {
+                    this.ProcessFile(file);
 
-            this.GenerateKissFile(content, false);
+                    File.Move(file.FullName, Path.Combine(Settings.Default.InputSuccessFolder, file.Name));
+                    log.InfoFormat("Datei '{0}' wurde erfolgreich verarbeitet.", file.Name);
+                }
+                catch (Exception ex)
+                {
+                    log.Error(ex);
+                    var newFilename = file.Name.Replace(".csv", "_" + DateTime.Now.Ticks + ".csv");
+                    File.Move(file.FullName, Path.Combine(Settings.Default.InputErrorFolder, newFilename));
+                    log.ErrorFormat("Bei der Verarbeitung der Datei '{0}' ist ein Fehler aufgetreten.");
+                }
+            }
         }
 
         #endregion

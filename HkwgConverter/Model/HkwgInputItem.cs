@@ -1,5 +1,8 @@
 ﻿namespace HkwgConverter.Model
 {
+    /// <summary>
+    /// abstraction for the items in the Cottbus CSV file
+    /// </summary>
     public class HkwgInputItem
     {
         public string Time { get; set; }

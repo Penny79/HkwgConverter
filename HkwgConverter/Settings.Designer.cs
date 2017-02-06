@@ -25,7 +25,7 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\Projekte\\HkwgConverter\\HkwgConverter\\Sample\\Input\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Input\\")]
         public string InputWatchFolder {
             get {
                 return ((string)(this["InputWatchFolder"]));
@@ -34,7 +34,7 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\Projekte\\HkwgConverter\\HkwgConverter\\Sample\\Input\\OK")]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Input\\OK\\")]
         public string InputSuccessFolder {
             get {
                 return ((string)(this["InputSuccessFolder"]));
@@ -43,10 +43,19 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\Projekte\\HkwgConverter\\HkwgConverter\\Sample\\Input\\NOK")]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Input\\NOK\\")]
         public string InputErrorFolder {
             get {
                 return ((string)(this["InputErrorFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\AppData\\")]
+        public string AppDataFolder {
+            get {
+                return ((string)(this["AppDataFolder"]));
             }
         }
     }

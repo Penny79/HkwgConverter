@@ -3,13 +3,16 @@
   <Profiles />
   <Settings>
     <Setting Name="InputWatchFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\Projekte\HkwgConverter\HkwgConverter\Sample\Input\</Value>
+      <Value Profile="(Default)">D:\FileStore\Input\</Value>
     </Setting>
     <Setting Name="InputSuccessFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\Projekte\HkwgConverter\HkwgConverter\Sample\Input\OK</Value>
+      <Value Profile="(Default)">D:\FileStore\Input\OK\</Value>
     </Setting>
     <Setting Name="InputErrorFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\Projekte\HkwgConverter\HkwgConverter\Sample\Input\NOK</Value>
+      <Value Profile="(Default)">D:\FileStore\Input\NOK\</Value>
+    </Setting>
+    <Setting Name="AppDataFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\FileStore\AppData\</Value>
     </Setting>
   </Settings>
 </SettingsFile>

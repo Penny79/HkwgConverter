@@ -8,46 +8,11 @@ namespace HkwgConverter
     class Program
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        static void InitInputWatcher()
-        {
-            var inputWatcher = new FileSystemWatcher()
-            {
-                Path = Settings.Default.InputWatchFolder,
-                NotifyFilter = NotifyFilters.LastWrite |NotifyFilters.LastAccess | NotifyFilters.LastWrite| NotifyFilters.FileName | NotifyFilters.DirectoryName,
-                Filter = "*.csv"
-            };
-                      
-            inputWatcher.Created += new FileSystemEventHandler(OnChanged);
-
-            // Begin watching.
-            inputWatcher.EnableRaisingEvents = true;
-
-            log.Info("Überwachung des Input Verzeichnis gestartet.");
-        }
-        
-
-        private static void OnChanged(object source, FileSystemEventArgs e)
-        {
-            try
-            {
-                log.InfoFormat("Neue CSV -Datei im Inputordner gefunden. '{0}'", e.Name);
-                var inputConverter = new InputConverter(e.FullPath);
-                inputConverter.Execute();
-                log.ErrorFormat("Datei '{0}' wurde erfolgreich verarbeitet.");
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex);
-                File.Move(e.FullPath, Path.Combine(Settings.Default.InputErrorFolder, e.Name));
-                log.ErrorFormat("Bei der Verarbeitung der Datei '{0}' ist ein Fehler aufgetreten.");
-            }
-            
-        }
+                
 
         private static bool ValidateConfiguration()
         {
-            log.Info(".......Validiere Konfigurationseinstellungen.");
+            log.Info("Validiere Konfigurationseinstellungen.");
             bool isValid = true;
 
             if(!Directory.Exists(Settings.Default.InputWatchFolder))
@@ -74,26 +39,27 @@ namespace HkwgConverter
             }
 
             return isValid;
-
         }
 
         static void Main(string[] args)
         {
-            XmlConfigurator.Configure();            
+            XmlConfigurator.Configure();
 
-            log.Info("......................Starte HKWG Converter.................");
+            log.Info("---------------------------------------------------------------------------------------------------");
+            log.Info("Starte HKWG Converter");
+            log.Info("---------------------------------------------------------------------------------------------------");
 
             bool isValid = ValidateConfiguration();
 
             if (isValid)
             {
-                InitInputWatcher();
-
-                Console.WriteLine("Press \'q\' to quit the sample.");
-                while (Console.Read() != 'q') ;
+                var inputConverter = new InputConverter();
+                inputConverter.Run();               
             }
 
-            log.Info("......................Anwendung wird beendet................");
+            log.Info("---------------------------------------------------------------------------------------------------");
+            log.Info("Anwendung wird beendet");
+            log.Info("---------------------------------------------------------------------------------------------------");
         }
     }
 }
