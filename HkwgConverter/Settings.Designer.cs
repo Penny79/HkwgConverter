@@ -26,9 +26,27 @@ namespace HkwgConverter {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\Projekte\\HkwgConverter\\HkwgConverter\\Sample\\Input\\")]
-        public string InputFolder {
+        public string InputWatchFolder {
             get {
-                return ((string)(this["InputFolder"]));
+                return ((string)(this["InputWatchFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\Projekte\\HkwgConverter\\HkwgConverter\\Sample\\Input\\OK")]
+        public string InputSuccessFolder {
+            get {
+                return ((string)(this["InputSuccessFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\Projekte\\HkwgConverter\\HkwgConverter\\Sample\\Input\\NOK")]
+        public string InputErrorFolder {
+            get {
+                return ((string)(this["InputErrorFolder"]));
             }
         }
     }

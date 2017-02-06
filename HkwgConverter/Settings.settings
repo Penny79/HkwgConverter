@@ -2,8 +2,14 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="HkwgConverter" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="InputFolder" Type="System.String" Scope="Application">
+    <Setting Name="InputWatchFolder" Type="System.String" Scope="Application">
       <Value Profile="(Default)">D:\Projekte\HkwgConverter\HkwgConverter\Sample\Input\</Value>
+    </Setting>
+    <Setting Name="InputSuccessFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\Projekte\HkwgConverter\HkwgConverter\Sample\Input\OK</Value>
+    </Setting>
+    <Setting Name="InputErrorFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\Projekte\HkwgConverter\HkwgConverter\Sample\Input\NOK</Value>
     </Setting>
   </Settings>
 </SettingsFile>
