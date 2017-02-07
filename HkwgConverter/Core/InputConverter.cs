@@ -84,17 +84,51 @@ namespace HkwgConverter.Core
             WriteHeaderCells(worksheet, deliveryDay.ToString(), isPurchase);
 
             decimal totalFlexPos = 0.0m;
+            var color1 = XLColor.FromArgb(192, 192, 192);
+            var color2 = XLColor.FromArgb(204, 255, 204);
+            var color3 = XLColor.FromArgb(255, 255, 153);
 
+            int rowOffset = 18;
             for (int i = 0; i < data.Count(); i++)
             {
-                worksheet.Cell(18 + i, 1).Value = DateTime.Parse(data[i].Time);
-                worksheet.Cell(18 + i, 3).SetValue(isPurchase ? data[i].FlexPos : data[i].FlexNeg);
-                worksheet.Cell(18 + i, 4).SetValue(data[i].MarginalCost);
-                totalFlexPos+= data[i].FlexPos;
+                var toTime = DateTime.Parse(data[i].Time).AddMinutes(15).ToString("HH:mm");
+
+                int currentRow = rowOffset + i;
+                worksheet.Cell(currentRow, 1).SetValue(data[i].Time);                
+                worksheet.Cell(currentRow, 2).SetValue(toTime);
+                worksheet.Cell(currentRow, 3).SetValue(isPurchase ? data[i].FlexPos : data[i].FlexNeg);
+                worksheet.Cell(currentRow, 4).SetValue(data[i].MarginalCost);
+
+                if ((i+1) % 4 == 0)
+                {
+                    worksheet.Range("A" + currentRow.ToString(), "D" + currentRow.ToString()).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                }
+                totalFlexPos += data[i].FlexPos;
             }
 
+            //Some styling
+            int lastRow = rowOffset + data.Count() - 1;
+            worksheet.Range("A18","B"+ lastRow.ToString()).Style.Fill.SetBackgroundColor(color1);           
+
+            worksheet.Range("C18", "C" + lastRow.ToString()).Style.Fill.SetBackgroundColor(color2);
+            worksheet.Range("C18", "C" + (lastRow + 1).ToString()).Style.NumberFormat.SetFormat("0.000");
+
+            worksheet.Range("D18", "D" + lastRow.ToString()).Style.Fill.SetBackgroundColor(color3);
+            worksheet.Range("D18", "D" + lastRow.ToString()).Style.NumberFormat.SetFormat("0.00");
+
+            worksheet.Range("A18", "D" + (lastRow + 1).ToString()).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            worksheet.Range("A18", "D" + lastRow.ToString()).Style.Border.OutsideBorder = XLBorderStyleValues.Medium;
+            worksheet.Range("A18", "B" + lastRow.ToString()).Style.Border.OutsideBorder = XLBorderStyleValues.Medium;
+            worksheet.Range("C18", "C" + lastRow.ToString()).Style.Border.OutsideBorder = XLBorderStyleValues.Medium;
+            worksheet.Range("A18", "A" + lastRow.ToString()).Style.Border.RightBorder = XLBorderStyleValues.Thin;
+            worksheet.Range("A" + lastRow + 1.ToString(), "A" + lastRow + 1.ToString()).Style.Border.RightBorder = XLBorderStyleValues.Medium;
+
+            //write footer values
             worksheet.Cell("C15").SetValue(totalFlexPos / 4);
-            worksheet.Cell("C114").SetValue(totalFlexPos / 4);
+            worksheet.Cell(lastRow + 1, 2).SetValue(" Arbeit[MWh]:");
+            worksheet.Cell(lastRow + 1, 3).SetValue(totalFlexPos / 4);
+            worksheet.Range("A" + lastRow + 1.ToString(), "A" + lastRow + 1.ToString()).Style.Font.Bold = true;
 
 
 
