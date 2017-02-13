@@ -49,41 +49,34 @@ namespace HkwgConverter {
                 return ((string)(this["InboundErrorFolder"]));
             }
         }
-
-
+        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Outbound\\")]
-        public string OutboundWatchFolder
-        {
-            get
-            {
+        public string OutboundWatchFolder {
+            get {
                 return ((string)(this["OutboundWatchFolder"]));
             }
         }
-
+        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Outbound\\OK\\")]
-        public string OutboundSuccessFolder
-        {
-            get
-            {
+        public string OutboundSuccessFolder {
+            get {
                 return ((string)(this["OutboundSuccessFolder"]));
             }
         }
-
+        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Outbound\\NOK\\")]
-        public string OutboundErrorFolder
-        {
-            get
-            {
+        public string OutboundErrorFolder {
+            get {
                 return ((string)(this["OutboundErrorFolder"]));
             }
         }
-
+        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\AppData\\")]

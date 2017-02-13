@@ -2,14 +2,23 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="HkwgConverter" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="InputWatchFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\Input\</Value>
+    <Setting Name="InboundWatchFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\FileStore\Inbound\</Value>
     </Setting>
-    <Setting Name="InputSuccessFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\Input\OK\</Value>
+    <Setting Name="InboundSuccessFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\FileStore\Inbound\OK\</Value>
     </Setting>
-    <Setting Name="InputErrorFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\Input\NOK\</Value>
+    <Setting Name="InboundErrorFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\FileStore\Inbound\NOK\</Value>
+    </Setting>
+    <Setting Name="OutboundWatchFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\FileStore\Outbound\</Value>
+    </Setting>
+    <Setting Name="OutboundSuccessFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\FileStore\Outbound\OK\</Value>
+    </Setting>
+    <Setting Name="OutboundErrorFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\FileStore\Outbound\NOK\</Value>
     </Setting>
     <Setting Name="AppDataFolder" Type="System.String" Scope="Application">
       <Value Profile="(Default)">D:\FileStore\AppData\</Value>
