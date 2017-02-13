@@ -10,7 +10,7 @@ namespace HkwgConverter.Core
     /// <summary>
     /// Implements the input conversion logic
     /// </summary>
-    public class InputConverter
+    public class InboundConverter
     {
         #region fields
 
@@ -21,7 +21,7 @@ namespace HkwgConverter.Core
 
         #region ctor
 
-        public InputConverter()
+        public InboundConverter()
         {            
             appDataAccessor = new AppDataAccessor(Settings.Default.AppDataFolder);                                          
         }
@@ -35,7 +35,7 @@ namespace HkwgConverter.Core
             var lines = File.ReadAllLines(fileName)
                 .Skip(2)
                 .Select(x => x.Split(';'))
-                .Select(x => new Model.HkwgInputItem()
+                .Select(x => new HkwgInputItem()
                 {
                     Time = x[0],
                     FPLast = decimal.Parse(x[1]),
@@ -52,7 +52,7 @@ namespace HkwgConverter.Core
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        private List<HkwgInputItem> Transform(List<Model.HkwgInputItem> content)
+        private List<HkwgInputItem> Transform(List<HkwgInputItem> content)
         {
             for (int i = 0; i < content.Count; i+=4)
             {
@@ -80,13 +80,10 @@ namespace HkwgConverter.Core
             XLWorkbook workBook = new XLWorkbook(ms);
 
             var worksheet = workBook.Worksheets.Skip(1).FirstOrDefault();
-          
+
             WriteHeaderCells(worksheet, deliveryDay.ToString(), isPurchase);
 
-            decimal totalFlexPos = 0.0m;
-            var color1 = XLColor.FromArgb(192, 192, 192);
-            var color2 = XLColor.FromArgb(204, 255, 204);
-            var color3 = XLColor.FromArgb(255, 255, 153);
+            decimal totalEnergy = 0.0m;           
 
             int rowOffset = 18;
             for (int i = 0; i < data.Count(); i++)
@@ -94,21 +91,47 @@ namespace HkwgConverter.Core
                 var toTime = DateTime.Parse(data[i].Time).AddMinutes(15).ToString("HH:mm");
 
                 int currentRow = rowOffset + i;
-                worksheet.Cell(currentRow, 1).SetValue(data[i].Time);                
+                worksheet.Cell(currentRow, 1).SetValue(data[i].Time);
                 worksheet.Cell(currentRow, 2).SetValue(toTime);
                 worksheet.Cell(currentRow, 3).SetValue(isPurchase ? data[i].FlexPos : data[i].FlexNeg);
                 worksheet.Cell(currentRow, 4).SetValue(data[i].MarginalCost);
 
-                if ((i+1) % 4 == 0)
+                if ((i + 1) % 4 == 0)
                 {
                     worksheet.Range("A" + currentRow.ToString(), "D" + currentRow.ToString()).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 }
-                totalFlexPos += data[i].FlexPos;
+
+                totalEnergy += isPurchase ? data[i].FlexPos : data[i].FlexNeg;
             }
 
             //Some styling
             int lastRow = rowOffset + data.Count() - 1;
-            worksheet.Range("A18","B"+ lastRow.ToString()).Style.Fill.SetBackgroundColor(color1);           
+
+            //write footer values
+            worksheet.Cell("C15").SetValue(totalEnergy / 4);
+            worksheet.Cell(lastRow + 1, 2).SetValue(" Arbeit[MWh]:");
+            worksheet.Cell(lastRow + 1, 3).SetValue(totalEnergy / 4);
+
+            ApplyStyling(worksheet, lastRow);
+
+            string outputFileName = String.Format("{0}_{1}_HKWG_{2}.xlsx",
+                deliveryDay.ToString("yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture),
+                isPurchase ? "FLEXPOS" : "FLEXNEG",
+                nextVersion.ToString("D2"));
+
+
+            workBook.SaveAs(Path.Combine(csvFile.Directory.FullName, outputFileName), false);
+
+            return outputFileName;
+        }
+
+        private static void ApplyStyling(IXLWorksheet worksheet, int lastRow)
+        {
+            var color1 = XLColor.FromArgb(192, 192, 192);
+            var color2 = XLColor.FromArgb(204, 255, 204);
+            var color3 = XLColor.FromArgb(255, 255, 153);
+
+            worksheet.Range("A18", "B" + lastRow.ToString()).Style.Fill.SetBackgroundColor(color1);
 
             worksheet.Range("C18", "C" + lastRow.ToString()).Style.Fill.SetBackgroundColor(color2);
             worksheet.Range("C18", "C" + (lastRow + 1).ToString()).Style.NumberFormat.SetFormat("0.000");
@@ -122,27 +145,10 @@ namespace HkwgConverter.Core
             worksheet.Range("A18", "B" + lastRow.ToString()).Style.Border.OutsideBorder = XLBorderStyleValues.Medium;
             worksheet.Range("C18", "C" + lastRow.ToString()).Style.Border.OutsideBorder = XLBorderStyleValues.Medium;
             worksheet.Range("A18", "A" + lastRow.ToString()).Style.Border.RightBorder = XLBorderStyleValues.Thin;
-            worksheet.Range("A" + lastRow + 1.ToString(), "A" + lastRow + 1.ToString()).Style.Border.RightBorder = XLBorderStyleValues.Medium;
 
-            //write footer values
-            worksheet.Cell("C15").SetValue(totalFlexPos / 4);
-            worksheet.Cell(lastRow + 1, 2).SetValue(" Arbeit[MWh]:");
-            worksheet.Cell(lastRow + 1, 3).SetValue(totalFlexPos / 4);
-            worksheet.Range("A" + lastRow + 1.ToString(), "A" + lastRow + 1.ToString()).Style.Font.Bold = true;
-
-
-
-            string outputFileName = String.Format("{0}_{1}_HKWG_{2}.xlsx",
-                deliveryDay.ToString("yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture),
-                isPurchase ? "FLEXPOS" : "FLEXNEG",
-                nextVersion.ToString("D2"));
-
-
-            workBook.SaveAs(Path.Combine(csvFile.Directory.FullName, outputFileName), false);
-
-            return outputFileName;
+            worksheet.Range("A" + (lastRow + 1).ToString(), "D" + (lastRow + 1).ToString()).Style.Border.OutsideBorder = XLBorderStyleValues.Medium;
+            worksheet.Range("A" + (lastRow + 1).ToString(), "D" + (lastRow + 1).ToString()).Style.Font.Bold = true;
         }
-        
 
         private static void WriteHeaderCells(IXLWorksheet worksheet, string deliveryDay, bool isPurchase)
         {
@@ -230,7 +236,7 @@ namespace HkwgConverter.Core
         public void Run()
         {
             log.Info("Suche nach neuen Dateien.");
-            var filesToProcess = Directory.GetFiles(Settings.Default.InputWatchFolder, "*.csv");
+            var filesToProcess = Directory.GetFiles(Settings.Default.InboundWatchFolder, "*.csv");
 
             if(filesToProcess.Count() > 0)
             {
@@ -238,25 +244,33 @@ namespace HkwgConverter.Core
             }
             else
             {
-                log.InfoFormat("Es wurden keine neuen Dateien im Input-Ordner gefunden.");
+                log.Info("Es wurden keine neuen Dateien im Input-Ordner gefunden.");
             }            
 
             foreach (var item in filesToProcess)
             {
                 FileInfo file = new FileInfo(item);
+                string newFileName = string.Empty;
                 try
                 {
                     this.ProcessFile(file);
-
-                    File.Move(file.FullName, Path.Combine(Settings.Default.InputSuccessFolder, file.Name));
+                    newFileName = Path.Combine(Settings.Default.InboundSuccessFolder, file.Name);
+                    File.Move(file.FullName, newFileName);
                     log.InfoFormat("Datei '{0}' wurde erfolgreich verarbeitet.", file.Name);
                 }
                 catch (Exception ex)
                 {
                     log.Error(ex);
-                    var newFilename = file.Name.Replace(".csv", "_" + DateTime.Now.Ticks + ".csv");
-                    File.Move(file.FullName, Path.Combine(Settings.Default.InputErrorFolder, newFilename));
-                    log.ErrorFormat("Bei der Verarbeitung der Datei '{0}' ist ein Fehler aufgetreten.");
+                    newFileName = file.Name.Replace(".csv", "_" + DateTime.Now.Ticks + ".csv");
+                    newFileName = Path.Combine(Settings.Default.InboundErrorFolder, newFileName);
+
+                    File.Move(file.FullName, newFileName);
+
+                    log.ErrorFormat("Bei der Verarbeitung der Datei '{0}' ist ein Fehler aufgetreten.", file.Name);
+                }
+                finally
+                {
+                    File.SetLastWriteTime(newFileName, DateTime.Now);
                 }
             }
         }

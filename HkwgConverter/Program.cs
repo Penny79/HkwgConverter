@@ -2,6 +2,7 @@
 using log4net.Config;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace HkwgConverter
 {
@@ -15,22 +16,17 @@ namespace HkwgConverter
             log.Info("Validiere Konfigurationseinstellungen.");
             bool isValid = true;
 
-            if(!Directory.Exists(Settings.Default.InputWatchFolder))
-            {
-                log.ErrorFormat("Setting: 'InputWatchFolder' Wert='{0}'. Dies ist das Verzeichnis in dem die CSV-Dateien von Cottbus ankommen. ", Settings.Default.InputWatchFolder);
-                isValid = false;
-            }
+            var configuredFolders = Settings.Default.GetType().GetProperties().Where(p => p.Name.EndsWith("Folder"));
 
-            if (!Directory.Exists(Settings.Default.InputSuccessFolder))
+            foreach (var item in configuredFolders)
             {
-                log.ErrorFormat("Setting: 'InputSuccessFolder' - Wert='{0}'. Hierhin werden erfolgreich verarbeitete CSV-Dateien verschoben.", Settings.Default.InputSuccessFolder);
-                isValid = false;
-            }
+                var value = item.GetValue(Settings.Default).ToString();
 
-            if (!Directory.Exists(Settings.Default.InputErrorFolder))
-            {
-                log.ErrorFormat("Setting: 'InputErrorFolder' - Wert='{0}'. Hierhin werden nicht verarbeitbare CSV-Dateien verschoben.", Settings.Default.InputErrorFolder);
-                isValid = false;
+                if (!Directory.Exists(value))
+                {
+                    log.ErrorFormat("Der konfigurierte Pfad '{1}' im Setting '{0}' kann nicht gefunden werden.", item.Name, value);
+                    isValid = false;
+                }
             }
 
             if(!isValid)
@@ -53,8 +49,11 @@ namespace HkwgConverter
 
             if (isValid)
             {
-                var inputConverter = new InputConverter();
-                inputConverter.Run();               
+                //var inboundConversion = new InboundConverter();
+                //inboundConversion.Run();
+
+                var outboundConversion = new OutboundConverter();
+                outboundConversion.Run();
             }
 
             log.Info("---------------------------------------------------------------------------------------------------");

@@ -72,8 +72,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\AppDataAccessor.cs" />
+    <Compile Include="Core\OutboundConverter.cs" />
     <Compile Include="Model\ConstantsSale.cs" />
-    <Compile Include="Core\InputConverter.cs" />
+    <Compile Include="Core\InboundConverter.cs" />
     <Compile Include="Model\AppDataInputItem.cs" />
     <Compile Include="Model\HkwgInputItem.cs" />
     <Compile Include="Program.cs" />
@@ -94,7 +95,6 @@
     <None Include="packages.config" />
     <None Include="Sample\20170201_FLEXPOS_HKWG_01.xlsx" />
     <None Include="Sample\Anmeldung_20161212_11XSWCOTTBUS---M_11XENVIAMBILANZD_V0051.xlsx" />
-    <None Include="Sample\Cottbus_DayAhead_20160930_20160930075200_20160930075203730.csv" />
     <None Include="Sample\OB_NewSchedule_20160705_20160704050122_+02.csv" />
     <None Include="Sample\Template_Kiss_Input.xlsx" />
     <None Include="Settings.settings">

@@ -25,31 +25,65 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Input\\")]
-        public string InputWatchFolder {
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Inbound\\")]
+        public string InboundWatchFolder {
             get {
-                return ((string)(this["InputWatchFolder"]));
+                return ((string)(this["InboundWatchFolder"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Input\\OK\\")]
-        public string InputSuccessFolder {
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Inbound\\OK\\")]
+        public string InboundSuccessFolder {
             get {
-                return ((string)(this["InputSuccessFolder"]));
+                return ((string)(this["InboundSuccessFolder"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Input\\NOK\\")]
-        public string InputErrorFolder {
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Inbound\\NOK\\")]
+        public string InboundErrorFolder {
             get {
-                return ((string)(this["InputErrorFolder"]));
+                return ((string)(this["InboundErrorFolder"]));
             }
         }
-        
+
+
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Outbound\\")]
+        public string OutboundWatchFolder
+        {
+            get
+            {
+                return ((string)(this["OutboundWatchFolder"]));
+            }
+        }
+
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Outbound\\OK\\")]
+        public string OutboundSuccessFolder
+        {
+            get
+            {
+                return ((string)(this["OutboundSuccessFolder"]));
+            }
+        }
+
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Outbound\\NOK\\")]
+        public string OutboundErrorFolder
+        {
+            get
+            {
+                return ((string)(this["OutboundErrorFolder"]));
+            }
+        }
+
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\AppData\\")]
