@@ -71,12 +71,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\AppDataAccessor.cs" />
+    <Compile Include="Core\WorkflowStore.cs" />
     <Compile Include="Core\OutboundConverter.cs" />
     <Compile Include="Model\ConstantsSale.cs" />
     <Compile Include="Core\InboundConverter.cs" />
-    <Compile Include="Model\AppDataInputItem.cs" />
+    <Compile Include="Model\Workflow.cs" />
     <Compile Include="Model\HkwgInputItem.cs" />
+    <Compile Include="Model\WorkflowState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resource.Designer.cs">
@@ -98,7 +99,7 @@
     <None Include="Sample\OB_NewSchedule_20160705_20160704050122_+02.csv" />
     <None Include="Sample\Template_Kiss_Input.xlsx" />
     <None Include="Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
@@ -121,6 +122,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

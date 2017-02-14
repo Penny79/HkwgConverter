@@ -1,6 +1,9 @@
 ﻿using HkwgConverter.Model;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Odbc;
+using System.Data.OleDb;
 using System.IO;
 using System.Linq;
 
@@ -9,12 +12,12 @@ namespace HkwgConverter.Core
     /// <summary>
     /// Encapsulates the work with some metadata about the processing itself. This data is kept in a simple csv file.
     /// </summary>
-    internal class AppDataAccessor
+    public class WorkflowStore
     {
         #region fields
 
         DirectoryInfo appDataDirectory;
-        private string inputLogFile;
+        private string dataFile;
 
         #endregion
 
@@ -22,18 +25,18 @@ namespace HkwgConverter.Core
 
         private void EnsureFilesExist()
         {
-            if (!File.Exists(inputLogFile))
+            if (!File.Exists(dataFile))
             {
-                File.WriteAllText(inputLogFile, AppDataInputItem.GetHeaderLine());
+                File.WriteAllText(dataFile, Workflow.GetHeaderLine());
             }
         }
 
-        private List<AppDataInputItem> ReadInputFile()
+        private List<Workflow> ReadInputFile()
         {
-            var lines = File.ReadAllLines(inputLogFile)
+            var lines = File.ReadAllLines(dataFile)
                 .Skip(1)
                 .Select(x => x.Split(';'))
-                .Select(x => new Model.AppDataInputItem()
+                .Select(x => new Model.Workflow()
                 {
                     Timestamp = DateTime.Parse(x[0]),
                     DeliveryDay = DateTime.Parse(x[1]),
@@ -50,11 +53,11 @@ namespace HkwgConverter.Core
 
         #region ctor
 
-        internal AppDataAccessor(string appDataPath)
+        public WorkflowStore(string appDataPath)
         {
             appDataDirectory = new DirectoryInfo(appDataPath);
             
-            this.inputLogFile = Path.Combine(appDataDirectory.FullName, "inputlog.csv");
+            this.dataFile = Path.Combine(appDataDirectory.FullName, "workflowDb.dat");
 
             this.EnsureFilesExist();            
         }
@@ -69,7 +72,7 @@ namespace HkwgConverter.Core
         /// </summary>
         /// <param name="deliveryday"></param>
         /// <returns></returns>
-        internal int GetNextInputVersionNumer(DateTime deliveryday)
+        public int GetNextInputVersionNumer(DateTime deliveryday)
         {
             var previousFilesForDay = this.ReadInputFile().Where(x => x.DeliveryDay == deliveryday);
             var nextVersionNumber = 1;
@@ -82,11 +85,24 @@ namespace HkwgConverter.Core
             return nextVersionNumber;                
         }
 
-        internal void AppendInputLogItem(AppDataInputItem item)
+        public void Add(Workflow item)
         {
-            File.AppendAllText(this.inputLogFile, item.GetValuesLine());
+            File.AppendAllText(this.dataFile, item.GetValuesLine());
         }
 
+        /// <summary>
+        /// Returns the latest Workflow in the system
+        /// </summary>
+        /// <param name="deliveryDay"></param>
+        /// <returns></returns>
+        public Workflow GetLatest(DateTime deliveryDay)
+        {
+            var latestWorkFlow = this.ReadInputFile().Where(x => x.DeliveryDay == deliveryDay && x.Status == WorkflowState.Open)                                                        
+                                        .LastOrDefault();
+
+            return latestWorkFlow;
+        }
+        
         #endregion
     }
 }

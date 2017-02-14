@@ -49,10 +49,12 @@ namespace HkwgConverter
 
             if (isValid)
             {
-                //var inboundConversion = new InboundConverter();
-                //inboundConversion.Run();
+                var appDataAccessor = new WorkflowStore(Settings.Default.WorkflowStoreFolder);
 
-                var outboundConversion = new OutboundConverter();
+                var inboundConversion = new InboundConverter(appDataAccessor, Settings.Default);
+                inboundConversion.Run();
+
+                var outboundConversion = new OutboundConverter(appDataAccessor, Settings.Default);
                 outboundConversion.Run();
             }
 

@@ -15,15 +15,17 @@ namespace HkwgConverter.Core
         #region fields
 
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private AppDataAccessor appDataAccessor;
+        private WorkflowStore workflowStore;
+        private Settings configData;
 
         #endregion
 
         #region ctor
 
-        public InboundConverter()
-        {            
-            appDataAccessor = new AppDataAccessor(Settings.Default.AppDataFolder);                                          
+        public InboundConverter(WorkflowStore store, Settings config)
+        {
+            this.workflowStore = store;
+            this.configData = config;
         }
 
         #endregion
@@ -199,7 +201,7 @@ namespace HkwgConverter.Core
             content = this.Transform(content);
 
             var deliveryDay = DateTime.Parse(content.FirstOrDefault().Time).Date;
-            var version = appDataAccessor.GetNextInputVersionNumer(deliveryDay);
+            var version = workflowStore.GetNextInputVersionNumer(deliveryDay);
 
             // Only generate the file if there any non zero demand values
             if (content.Any(x => x.FlexPos != 0.0m))
@@ -213,7 +215,7 @@ namespace HkwgConverter.Core
                 flexNegFile = this.GenerateKissFile(csvFile, content, deliveryDay, version, false);
             }
 
-            var appDataItem = new AppDataInputItem()
+            var appDataItem = new Workflow()
             {
                 CsvFile = csvFile.Name,
                 DeliveryDay = deliveryDay,
@@ -223,7 +225,7 @@ namespace HkwgConverter.Core
                 Version = version,
             };
 
-            this.appDataAccessor.AppendInputLogItem(appDataItem);
+            this.workflowStore.Add(appDataItem);
         }
 
         #endregion
@@ -236,7 +238,7 @@ namespace HkwgConverter.Core
         public void Run()
         {
             log.Info("Suche nach neuen Dateien.");
-            var filesToProcess = Directory.GetFiles(Settings.Default.InboundWatchFolder, "*.csv");
+            var filesToProcess = Directory.GetFiles(this.configData.InboundWatchFolder, "*.csv");
 
             if(filesToProcess.Count() > 0)
             {
@@ -254,7 +256,7 @@ namespace HkwgConverter.Core
                 try
                 {
                     this.ProcessFile(file);
-                    newFileName = Path.Combine(Settings.Default.InboundSuccessFolder, file.Name);
+                    newFileName = Path.Combine(this.configData.InboundSuccessFolder, file.Name);
                     File.Move(file.FullName, newFileName);
                     log.InfoFormat("Datei '{0}' wurde erfolgreich verarbeitet.", file.Name);
                 }
@@ -262,7 +264,7 @@ namespace HkwgConverter.Core
                 {
                     log.Error(ex);
                     newFileName = file.Name.Replace(".csv", "_" + DateTime.Now.Ticks + ".csv");
-                    newFileName = Path.Combine(Settings.Default.InboundErrorFolder, newFileName);
+                    newFileName = Path.Combine(this.configData.InboundErrorFolder, newFileName);
 
                     File.Move(file.FullName, newFileName);
 
