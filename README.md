@@ -1,10 +1,18 @@
 # Hkwg Converter 
-Es handelt sich hier um eine .NET Kommandozeilenanwendung, zum Konvertieren von CSV Datei in ein spezielles
-Excel-Format und zurück.
+Es handelt sich hier um eine .NET Kommandozeilenanwendung, zum Konvertieren von CSV Dateien in ein spezielles Excel-Format und zurück.
+
+Prinzipiell funktioniert die Anwendung so, dass sie bei Ihrem Start erst ein Inbound-Verzeichnis nach zu verarbeitenden Dateien durchsucht. Diese werden verarbeitet und in Unterverzeichnisse verschoben. 
+
+Danach werden Dateien im Outbound Verzeichnis gesucht und verarbeitet.
+
+Zur Protokollierung der verarbeiteten Dateien wird ein kleine kleine CSV-Datei geschrieben. So weiß  das Programm beim Verarbeiten der Outbound-Richtung, welches Quell-CSV Datei dazu gehört.
+
+Wichtig: Es wurde die Annahme geroffen, dass für einen Liefertag immer nur ein Workflow gerade aktiv ist. Ist für die letzte empfangene CSV-Datei die Rückgabedatei übergeben worden, so kann eine neue Meldung entgegengenommen werden. Früher nicht.
+  
 
 ## Einstellungen
 
-Um das Programm laufen zu lassen, müssen einige Pfade für die Zeillandschaft eingestellt werden.
+Um das Programm laufen zu lassen, müssen einige Pfade für die Ziellandschaft eingestellt werden.
 Diese Einstellungen befinden sich in der Datei HkwgConverter.exe.config.
 
 ### LogFile-Verzeichnis
