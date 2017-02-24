@@ -37,7 +37,7 @@ namespace HkwgConverter.Model
         /// <returns></returns>
         public string GetValuesLine()
         {
-            return string.Join(";", typeof(Workflow).GetProperties().Select(x => x.GetValue(this)).ToArray()) + Environment.NewLine;
+            return string.Join(";", typeof(Workflow).GetProperties().Select(x => x.GetValue(this,null)).ToArray()) + Environment.NewLine;
         }
     }
 }

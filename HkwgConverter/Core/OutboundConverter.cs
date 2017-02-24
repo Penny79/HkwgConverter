@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using HkwgConverter.Model;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,8 @@ namespace HkwgConverter.Core
     {
         #region fields
 
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private static Logger log = LogManager.GetCurrentClassLogger();
         private WorkflowStore workflowStore;
         private Settings configData;
         private const string outputCsvFilePrefix = "OB_NewSchedule_";
@@ -77,7 +79,7 @@ namespace HkwgConverter.Core
 
             if (latestWorkflow == null)
             {
-                log.ErrorFormat("Die Datei {0} kann nicht verarbeitet werden weil es für den Liefertag keinen offenen Prozess gibt.");
+                log.Error("Die Datei {0} kann nicht verarbeitet werden weil es für den Liefertag keinen offenen Prozess gibt.");
                 return;
             }
 
@@ -120,7 +122,7 @@ namespace HkwgConverter.Core
                 sb.AppendLine(newDemandValue.ToString("N3"));
             }
 
-            var targetFile = Path.Combine(this.configData.OutboundWatchFolder, outputCsvFilePrefix+ "_" + workflow.CsvFile);
+            var targetFile = Path.Combine(this.configData.OutboundDropFolder, outputCsvFilePrefix+ "_" + workflow.CsvFile);
 
             File.WriteAllText(targetFile, sb.ToString());    
                      
@@ -140,7 +142,7 @@ namespace HkwgConverter.Core
 
             if(filesToProcess.Count() > 0)
             {
-                log.InfoFormat("Es wurden {0} neue Dateien im Outbound-Ordner gefunden. Starte Konvertierung...", filesToProcess.Count());
+                log.Info("Es wurden {0} neue Dateien im Outbound-Ordner gefunden. Starte Konvertierung...", filesToProcess.Count());
             }
             else
             {
@@ -156,7 +158,7 @@ namespace HkwgConverter.Core
                     this.ProcessFile(file);
                     newFileName = Path.Combine(Settings.Default.OutboundSuccessFolder, file.Name);
                     File.Move(file.FullName, newFileName);
-                    log.InfoFormat("Datei '{0}' wurde erfolgreich verarbeitet.", file.Name);
+                    log.Info("Datei '{0}' wurde erfolgreich verarbeitet.", file.Name);
                 }
                 catch (Exception ex)
                 {
@@ -166,7 +168,7 @@ namespace HkwgConverter.Core
 
                     File.Move(file.FullName, newFileName);
 
-                    log.ErrorFormat("Bei der Verarbeitung der Datei '{0}' ist ein Fehler aufgetreten.", file.Name);
+                    log.Error("Bei der Verarbeitung der Datei '{0}' ist ein Fehler aufgetreten.", file.Name);
                 }
                 finally
                 {

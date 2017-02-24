@@ -25,7 +25,7 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Inbound\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\HkwgConverter\\Inbound\\")]
         public string InboundWatchFolder {
             get {
                 return ((string)(this["InboundWatchFolder"]));
@@ -34,7 +34,7 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Inbound\\OK\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\HkwgConverter\\Inbound\\OK\\")]
         public string InboundSuccessFolder {
             get {
                 return ((string)(this["InboundSuccessFolder"]));
@@ -43,7 +43,7 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Inbound\\NOK\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\HkwgConverter\\Inbound\\NOK\\")]
         public string InboundErrorFolder {
             get {
                 return ((string)(this["InboundErrorFolder"]));
@@ -52,7 +52,16 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Outbound\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\HkwgConverter\\Inbound\\Drop\\")]
+        public string InboundDropFolder {
+            get {
+                return ((string)(this["InboundDropFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\HkwgConverter\\Outbound\\")]
         public string OutboundWatchFolder {
             get {
                 return ((string)(this["OutboundWatchFolder"]));
@@ -61,7 +70,7 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Outbound\\OK\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\HkwgConverter\\Outbound\\OK\\")]
         public string OutboundSuccessFolder {
             get {
                 return ((string)(this["OutboundSuccessFolder"]));
@@ -70,7 +79,7 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\Outbound\\NOK\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\HkwgConverter\\Outbound\\NOK\\")]
         public string OutboundErrorFolder {
             get {
                 return ((string)(this["OutboundErrorFolder"]));
@@ -79,7 +88,16 @@ namespace HkwgConverter {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\FileStore\\AppData\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\HkwgConverter\\Outbound\\Drop\\")]
+        public string OutboundDropFolder {
+            get {
+                return ((string)(this["OutboundDropFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\HkwgConverter\\AppData\\")]
         public string WorkflowStoreFolder {
             get {
                 return ((string)(this["WorkflowStoreFolder"]));

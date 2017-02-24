@@ -42,7 +42,11 @@ Ankommende CSV Dateien werden im "InboundWatchFolder" erwartet und dann in die e
 	            </setting>
 	            <setting name="InboundErrorFolder" serializeAs="String">
 	                <value>D:\FileStore\Inbound\NOK\</value>
-	            </setting>                      
+	            </setting>  
+				<setting name="InboundDropFolder" serializeAs="String">
+                	<value>C:\HkwgConverter\Inbound\Drop\</value>
+				</setting>
+            </setting>                    
 	        </HkwgConverter.Settings>
 	    </applicationSettings>
 
@@ -64,6 +68,9 @@ Ankommende XSLX Dateien werden im "OutboudWatchFolder" erwartet und dann in die 
 	            <setting name="OutboundErrorFolder" serializeAs="String">
 	                <value>D:\FileStore\Outbound\NOK\</value>
 	            </setting>
+           		<setting name="OutboundDropFolder" serializeAs="String">
+                	<value>C:\HkwgConverter\Outbound\Drop\</value>
+            	</setting>
 	        </HkwgConverter.Settings>
 	    </applicationSettings>
 

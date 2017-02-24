@@ -1,5 +1,5 @@
 ﻿using HkwgConverter.Core;
-using log4net.Config;
+using NLog;
 using System;
 using System.IO;
 using System.Linq;
@@ -8,7 +8,7 @@ namespace HkwgConverter
 {
     class Program
     {
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static Logger log = LogManager.GetCurrentClassLogger();
                 
 
         private static bool ValidateConfiguration()
@@ -20,11 +20,11 @@ namespace HkwgConverter
 
             foreach (var item in configuredFolders)
             {
-                var value = item.GetValue(Settings.Default).ToString();
+                var value = item.GetValue(Settings.Default, null).ToString();
 
                 if (!Directory.Exists(value))
                 {
-                    log.ErrorFormat("Der konfigurierte Pfad '{1}' im Setting '{0}' kann nicht gefunden werden.", item.Name, value);
+                    log.Error("Der konfigurierte Pfad '{1}' im Setting '{0}' kann nicht gefunden werden.", item.Name, value);
                     isValid = false;
                 }
             }
@@ -39,8 +39,6 @@ namespace HkwgConverter
 
         static void Main(string[] args)
         {
-            XmlConfigurator.Configure();
-
             log.Info("---------------------------------------------------------------------------------------------------");
             log.Info("Starte HKWG Converter");
             log.Info("---------------------------------------------------------------------------------------------------");

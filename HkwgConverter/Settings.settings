@@ -3,25 +3,31 @@
   <Profiles />
   <Settings>
     <Setting Name="InboundWatchFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\Inbound\</Value>
+      <Value Profile="(Default)">C:\HkwgConverter\Inbound\</Value>
     </Setting>
     <Setting Name="InboundSuccessFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\Inbound\OK\</Value>
+      <Value Profile="(Default)">C:\HkwgConverter\Inbound\OK\</Value>
     </Setting>
     <Setting Name="InboundErrorFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\Inbound\NOK\</Value>
+      <Value Profile="(Default)">C:\HkwgConverter\Inbound\NOK\</Value>
+    </Setting>
+    <Setting Name="InboundDropFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\HkwgConverter\Inbound\Drop\</Value>
     </Setting>
     <Setting Name="OutboundWatchFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\Outbound\</Value>
+      <Value Profile="(Default)">C:\HkwgConverter\Outbound\</Value>
     </Setting>
     <Setting Name="OutboundSuccessFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\Outbound\OK\</Value>
+      <Value Profile="(Default)">C:\HkwgConverter\Outbound\OK\</Value>
     </Setting>
     <Setting Name="OutboundErrorFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\Outbound\NOK\</Value>
+      <Value Profile="(Default)">C:\HkwgConverter\Outbound\NOK\</Value>
+    </Setting>
+    <Setting Name="OutboundDropFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\HkwgConverter\Outbound\Drop\</Value>
     </Setting>
     <Setting Name="WorkflowStoreFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">D:\FileStore\AppData\</Value>
+      <Value Profile="(Default)">C:\HkwgConverter\AppData\</Value>
     </Setting>
   </Settings>
 </SettingsFile>
