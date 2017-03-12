@@ -103,5 +103,14 @@ namespace HkwgConverter {
                 return ((string)(this["WorkflowStoreFolder"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseConsole {
+            get {
+                return ((bool)(this["UseConsole"]));
+            }
+        }
     }
 }

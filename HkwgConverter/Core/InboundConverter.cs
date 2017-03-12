@@ -15,7 +15,7 @@ namespace HkwgConverter.Core
     {
         #region fields
 
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private static LogWrapper log = LogWrapper.GetLogger(LogManager.GetCurrentClassLogger());
 
         private WorkflowStore workflowStore;
         private Settings configData;
@@ -239,6 +239,7 @@ namespace HkwgConverter.Core
         /// </summary>
         public void Run()
         {
+           
             log.Info("Suche nach neuen Dateien.");
             var filesToProcess = Directory.GetFiles(this.configData.InboundWatchFolder, "*.csv");
 
@@ -264,7 +265,7 @@ namespace HkwgConverter.Core
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    log.Error(ex.ToString());
                     newFileName = file.Name.Replace(".csv", "_" + DateTime.Now.Ticks + ".csv");
                     newFileName = Path.Combine(this.configData.InboundErrorFolder, newFileName);
 

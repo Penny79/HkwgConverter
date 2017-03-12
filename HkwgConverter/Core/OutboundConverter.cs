@@ -17,7 +17,7 @@ namespace HkwgConverter.Core
         #region fields
 
 
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private static LogWrapper log = LogWrapper.GetLogger(LogManager.GetCurrentClassLogger());
         private WorkflowStore workflowStore;
         private Settings configData;
         private const string outputCsvFilePrefix = "OB_NewSchedule_";
@@ -162,7 +162,7 @@ namespace HkwgConverter.Core
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex);
+                    log.Error(ex.ToString());
                     newFileName = file.Name.Replace(".csv", "_" + DateTime.Now.Ticks + ".csv");
                     newFileName = Path.Combine(Settings.Default.OutboundErrorFolder, newFileName);
 

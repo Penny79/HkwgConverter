@@ -8,15 +8,14 @@ namespace HkwgConverter
 {
     class Program
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
-                
-
+        private static LogWrapper log = LogWrapper.GetLogger(LogManager.GetCurrentClassLogger());
+       
         private static bool ValidateConfiguration()
         {
             log.Info("Validiere Konfigurationseinstellungen.");
             bool isValid = true;
 
-            var configuredFolders = Settings.Default.GetType().GetProperties().Where(p => p.Name.EndsWith("Folder"));
+            var configuredFolders = Settings.Default.GetType().GetProperties().Where(p => p.Name.EndsWith("Folder", StringComparison.InvariantCultureIgnoreCase));
 
             foreach (var item in configuredFolders)
             {
@@ -24,7 +23,7 @@ namespace HkwgConverter
 
                 if (!Directory.Exists(value))
                 {
-                    log.Error("Der konfigurierte Pfad '{1}' im Setting '{0}' kann nicht gefunden werden.", item.Name, value);
+                   log.Error("Der konfigurierte Pfad '{1}' im Setting '{0}' kann nicht gefunden werden.", item.Name, value);
                     isValid = false;
                 }
             }
@@ -59,6 +58,11 @@ namespace HkwgConverter
             log.Info("---------------------------------------------------------------------------------------------------");
             log.Info("Anwendung wird beendet");
             log.Info("---------------------------------------------------------------------------------------------------");
+
+#if DEBUG
+            Console.ReadLine();
+
+#endif
         }
     }
 }

@@ -1,0 +1,9 @@
+set root=C:\HkwgConverter
+mkdir %root%
+mkdir %root%\AppData
+mkdir %root%\Inbound
+mkdir %root%\Inbound\OK
+mkdir %root%\Inbound\NOK
+mkdir %root%\Outbound
+mkdir %root%\Outbound\OK
+mkdir %root%\Outbound\NOK

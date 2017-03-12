@@ -29,5 +29,8 @@
     <Setting Name="WorkflowStoreFolder" Type="System.String" Scope="Application">
       <Value Profile="(Default)">C:\HkwgConverter\AppData\</Value>
     </Setting>
+    <Setting Name="UseConsole" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
