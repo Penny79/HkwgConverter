@@ -155,38 +155,40 @@ namespace HkwgConverter.Core
         }
 
         private static void WriteHeaderCells(IXLWorksheet worksheet, string deliveryDay, bool isPurchase)
-        {
+        {           
+            string fromBusinessPartner = isPurchase ? Constants.CottbusBusinessPartnerName : Constants.EnviamBusinessPartnerName;
+            string toBusinessPartner = isPurchase ? Constants.EnviamBusinessPartnerName : Constants.CottbusBusinessPartnerName;
+
+            string fromContactPerson = isPurchase ? Constants.CottbusContactPerson : Constants.EnviamContactPerson;            
+            string toContactPerson = isPurchase ? Constants.EnviamContactPerson : Constants.CottbusContactPerson;
+
+            string fromSettlementArea = isPurchase ? Constants.CottbusSettlementArea : Constants.EnviamSettlementArea;
+            string toSettlementArea = isPurchase ? Constants.EnviamSettlementArea : Constants.CottbusSettlementArea;
+
             worksheet.Cell("C1").Value = deliveryDay;
             worksheet.Cell("D1").Value = deliveryDay;
 
-            if(isPurchase)
-            {
-                worksheet.Cell("C4").Value = Constants.CottbusSettlementArea;
-                worksheet.Cell("D4").Value = Constants.CottbusSettlementArea;
+            worksheet.Cell("C4").Value = fromSettlementArea;
+            worksheet.Cell("D4").Value = fromSettlementArea;
 
-                worksheet.Cell("C5").Value = Constants.EnviamSettlementArea;
-                worksheet.Cell("D5").Value = Constants.EnviamSettlementArea;
+            worksheet.Cell("C5").Value = toSettlementArea;
+            worksheet.Cell("D5").Value = toSettlementArea;
 
-                worksheet.Cell("C7").Value = Constants.EnviamSettlementArea;
-                worksheet.Cell("D7").Value = Constants.EnviamSettlementArea;
+            worksheet.Cell("C7").Value = fromSettlementArea;
+            worksheet.Cell("D7").Value = fromSettlementArea;
 
-                worksheet.Cell("C9").Value = Constants.CottbusBusinessPartnerName;
-                worksheet.Cell("D9").Value = Constants.CottbusBusinessPartnerName;
+            worksheet.Cell("C9").Value = fromBusinessPartner;
+            worksheet.Cell("D9").Value = fromBusinessPartner;
 
-                worksheet.Cell("C10").Value = Constants.CottbusContactPerson;
-                worksheet.Cell("D10").Value = Constants.CottbusContactPerson;
-            }
-            else
-            {
-                worksheet.Cell("C4").Value = Constants.EnviamSettlementArea;
-                worksheet.Cell("D4").Value = Constants.EnviamSettlementArea;
+            worksheet.Cell("C10").Value = fromContactPerson;
+            worksheet.Cell("D10").Value = fromContactPerson;
 
-                worksheet.Cell("C5").Value = Constants.CottbusSettlementArea;
-                worksheet.Cell("D5").Value = Constants.CottbusSettlementArea;
+            worksheet.Cell("C11").Value = toBusinessPartner;
+            worksheet.Cell("D11").Value = toBusinessPartner;
 
-                worksheet.Cell("C7").Value = Constants.CottbusSettlementArea;
-                worksheet.Cell("D7").Value = Constants.CottbusSettlementArea;                
-            }            
+            worksheet.Cell("C12").Value = toContactPerson;
+            worksheet.Cell("D12").Value = toContactPerson;
+                    
         }
              
 
