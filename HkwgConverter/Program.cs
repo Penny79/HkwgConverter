@@ -1,4 +1,5 @@
 ﻿using HkwgConverter.Core;
+using HkwgConverter.Model;
 using NLog;
 using System;
 using System.IO;
@@ -47,6 +48,8 @@ namespace HkwgConverter
             if (isValid)
             {
                 var appDataAccessor = new WorkflowStore(Settings.Default.WorkflowStoreFolder);
+
+                //var config = (BusinessConfigurationSection)System.Configuration.ConfigurationManager.GetSection("businessSettings");
 
                 var inboundConversion = new InboundConverter(appDataAccessor, Settings.Default);
                 inboundConversion.Run();

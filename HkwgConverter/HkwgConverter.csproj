@@ -89,7 +89,8 @@
     <Compile Include="Core\LogWrapper.cs" />
     <Compile Include="Core\WorkflowStore.cs" />
     <Compile Include="Core\OutboundConverter.cs" />
-    <Compile Include="Model\ConstantsSale.cs" />
+    <Compile Include="Model\BusinessConfigurationSection.cs" />
+    <Compile Include="Model\Constants.cs" />
     <Compile Include="Core\InboundConverter.cs" />
     <Compile Include="Model\Workflow.cs" />
     <Compile Include="Model\HkwgInputItem.cs" />
