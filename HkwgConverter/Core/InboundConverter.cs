@@ -19,15 +19,17 @@ namespace HkwgConverter.Core
 
         private WorkflowStore workflowStore;
         private Settings configData;
+        private BusinessConfigurationSection businessSettings;
 
         #endregion
 
         #region ctor
 
-        public InboundConverter(WorkflowStore store, Settings config)
+        public InboundConverter(WorkflowStore store, Settings config, BusinessConfigurationSection businessSettings)
         {
             this.workflowStore = store;
             this.configData = config;
+            this.businessSettings = businessSettings;
         }
 
         #endregion
@@ -42,10 +44,10 @@ namespace HkwgConverter.Core
                 .Select(x => new HkwgInputItem()
                 {
                     Time = x[0],
-                    FPLast = decimal.Parse(x[1]),
-                    FlexPos = decimal.Parse(x[2]),
-                    FlexNeg = decimal.Parse(x[3]),
-                    MarginalCost = decimal.Parse(x[4]),
+                    FPLast = decimal.Parse(x[1], System.Globalization.CultureInfo.InvariantCulture),
+                    FlexPos = decimal.Parse(x[2], System.Globalization.CultureInfo.InvariantCulture),
+                    FlexNeg = decimal.Parse(x[3], System.Globalization.CultureInfo.InvariantCulture),
+                    MarginalCost = decimal.Parse(x[4], System.Globalization.CultureInfo.InvariantCulture)
                 });
 
             return lines.ToList();
@@ -154,41 +156,34 @@ namespace HkwgConverter.Core
             worksheet.Range("A" + (lastRow + 1).ToString(), "D" + (lastRow + 1).ToString()).Style.Font.Bold = true;
         }
 
-        private static void WriteHeaderCells(IXLWorksheet worksheet, string deliveryDay, bool isPurchase)
-        {           
-            string fromBusinessPartner = isPurchase ? Constants.CottbusBusinessPartnerName : Constants.EnviamBusinessPartnerName;
-            string toBusinessPartner = isPurchase ? Constants.EnviamBusinessPartnerName : Constants.CottbusBusinessPartnerName;
-
-            string fromContactPerson = isPurchase ? Constants.CottbusContactPerson : Constants.EnviamContactPerson;            
-            string toContactPerson = isPurchase ? Constants.EnviamContactPerson : Constants.CottbusContactPerson;
-
-            string fromSettlementArea = isPurchase ? Constants.CottbusSettlementArea : Constants.EnviamSettlementArea;
-            string toSettlementArea = isPurchase ? Constants.EnviamSettlementArea : Constants.CottbusSettlementArea;
+        private void WriteHeaderCells(IXLWorksheet worksheet, string deliveryDay, bool isPurchase)
+        {
+            var fromBusinessPartner = isPurchase ? this.businessSettings.PartnerCottbus : this.businessSettings.PartnerEnviaM;
+            var toBusinessPartner = isPurchase ? this.businessSettings.PartnerEnviaM : this.businessSettings.PartnerCottbus;
 
             worksheet.Cell("C1").Value = deliveryDay;
             worksheet.Cell("D1").Value = deliveryDay;
 
-            worksheet.Cell("C4").Value = fromSettlementArea;
-            worksheet.Cell("D4").Value = fromSettlementArea;
+            worksheet.Cell("C4").Value = fromBusinessPartner.SettlementArea;
+            worksheet.Cell("D4").Value = fromBusinessPartner.SettlementArea;
 
-            worksheet.Cell("C5").Value = toSettlementArea;
-            worksheet.Cell("D5").Value = toSettlementArea;
+            worksheet.Cell("C5").Value = toBusinessPartner.SettlementArea;
+            worksheet.Cell("D5").Value = toBusinessPartner.SettlementArea;
 
-            worksheet.Cell("C7").Value = fromSettlementArea;
-            worksheet.Cell("D7").Value = fromSettlementArea;
+            worksheet.Cell("C7").Value = fromBusinessPartner.SettlementArea;
+            worksheet.Cell("D7").Value = fromBusinessPartner.SettlementArea;
 
-            worksheet.Cell("C9").Value = fromBusinessPartner;
-            worksheet.Cell("D9").Value = fromBusinessPartner;
+            worksheet.Cell("C9").Value = fromBusinessPartner.BusinessPartnerName;
+            worksheet.Cell("D9").Value = fromBusinessPartner.BusinessPartnerName;
 
-            worksheet.Cell("C10").Value = fromContactPerson;
-            worksheet.Cell("D10").Value = fromContactPerson;
+            worksheet.Cell("C10").Value = fromBusinessPartner.ContactPerson;
+            worksheet.Cell("D10").Value = fromBusinessPartner.ContactPerson;
 
-            worksheet.Cell("C11").Value = toBusinessPartner;
-            worksheet.Cell("D11").Value = toBusinessPartner;
+            worksheet.Cell("C11").Value = toBusinessPartner.BusinessPartnerName;
+            worksheet.Cell("D11").Value = toBusinessPartner.BusinessPartnerName;
 
-            worksheet.Cell("C12").Value = toContactPerson;
-            worksheet.Cell("D12").Value = toContactPerson;
-                    
+            worksheet.Cell("C12").Value = toBusinessPartner.ContactPerson;
+            worksheet.Cell("D12").Value = toBusinessPartner.ContactPerson;
         }
              
 

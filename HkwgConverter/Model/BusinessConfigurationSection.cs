@@ -4,16 +4,22 @@ namespace HkwgConverter.Model
 {
     public class BusinessConfigurationSection : ConfigurationSection
     {
-        [ConfigurationProperty("geschäftsart", DefaultValue = "Intraday-FLEX", IsRequired = true)]
+
+        public BusinessConfigurationSection()
+        {
+
+        }
+
+        [ConfigurationProperty("geschaeftsart", DefaultValue = "Intraday-FLEX", IsRequired = true)]
         public string TransactionType
         {
             get
             {
-                return (string)this["geschäftsart"];
+                return (string)this["geschaeftsart"];
             }
             set
             {
-                this["geschäftsart"] = value;
+                this["geschaeftsart"] = value;
             }
         }
 
@@ -46,13 +52,46 @@ namespace HkwgConverter.Model
 
     public class BusinessPartnerElement : ConfigurationElement
     {
-        [ConfigurationProperty("geschäftspartnername", DefaultValue = "", IsRequired = true)]
-        public string BusinessPartnerName { get; set; }
 
-        [ConfigurationProperty("ansprechpartner", DefaultValue = "", IsRequired = true)]
-        public string ContactPerson { get; set; }
+        public BusinessPartnerElement()
+        {
 
-        [ConfigurationProperty("bilanzkreis", DefaultValue = "", IsRequired = true)]
-        public string SettlementArea { get; set; }
+        }
+        [ConfigurationProperty("geschaeftspartnername", IsRequired = true)]
+        public string BusinessPartnerName
+        {
+            get
+            {
+                return (string)this["geschaeftspartnername"];
+            }
+            set
+            {
+                this["geschaeftspartnername"] = value;
+            }
+        }
+    [ConfigurationProperty("ansprechpartner", IsRequired = true)]
+        public string ContactPerson {
+            get
+            {
+                return (string)this["ansprechpartner"];
+            }
+            set
+            {
+                this["ansprechpartner"] = value;
+            }
+
+        }
+
+        [ConfigurationProperty("bilanzkreis", IsRequired = true)]
+        public string SettlementArea {
+            get
+            {
+                return (string)this["bilanzkreis"];
+            }
+            set
+            {
+                this["bilanzkreis"] = value;
+            }
+        }
     }
 }

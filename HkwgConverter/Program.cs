@@ -49,9 +49,11 @@ namespace HkwgConverter
             {
                 var appDataAccessor = new WorkflowStore(Settings.Default.WorkflowStoreFolder);
 
-                //var config = (BusinessConfigurationSection)System.Configuration.ConfigurationManager.GetSection("businessSettings");
+                var test = System.Configuration.ConfigurationManager.GetSection("businessSettings");
 
-                var inboundConversion = new InboundConverter(appDataAccessor, Settings.Default);
+                var config = (BusinessConfigurationSection)System.Configuration.ConfigurationManager.GetSection("businessSettings");
+
+                var inboundConversion = new InboundConverter(appDataAccessor, Settings.Default, config);
                 inboundConversion.Run();
 
                 var outboundConversion = new OutboundConverter(appDataAccessor, Settings.Default);

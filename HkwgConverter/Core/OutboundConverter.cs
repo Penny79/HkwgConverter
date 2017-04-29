@@ -3,6 +3,7 @@ using HkwgConverter.Model;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -96,10 +97,10 @@ namespace HkwgConverter.Core
                 .Select(x => new HkwgInputItem()
                 {
                     Time = x[0],
-                    FPLast = decimal.Parse(x[1]),
-                    FlexPos = decimal.Parse(x[2]),
-                    FlexNeg = decimal.Parse(x[3]),
-                    MarginalCost = decimal.Parse(x[4]),
+                    FPLast = decimal.Parse(x[1], CultureInfo.InvariantCulture),
+                    FlexPos = decimal.Parse(x[2], CultureInfo.InvariantCulture),
+                    FlexNeg = decimal.Parse(x[3], CultureInfo.InvariantCulture),
+                    MarginalCost = decimal.Parse(x[4], CultureInfo.InvariantCulture),
                 });
 
             return lines.ToList();
@@ -119,7 +120,7 @@ namespace HkwgConverter.Core
                 
                 sb.Append(time);
                 sb.Append(";");
-                sb.AppendLine(newDemandValue.ToString("N3"));
+                sb.AppendLine(newDemandValue.ToString("0.000", CultureInfo.InvariantCulture));
             }
 
             var targetFile = Path.Combine(this.configData.OutboundDropFolder, outputCsvFilePrefix+ "_" + workflow.CsvFile);
