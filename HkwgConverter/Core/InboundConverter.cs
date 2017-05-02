@@ -62,18 +62,19 @@ namespace HkwgConverter.Core
         {
             for (int i = 0; i < content.Count; i+=4)
             {
-                var quarterhours = content.Skip(i).Take(4);
+                
+                    var quarterhours = content.Skip(i).Take(4);
 
-                var avgflexPos = quarterhours.Average(x => x.FlexPos);
-                var avgflexNeg = quarterhours.Average(x => x.FlexNeg);
-                var avgCost = quarterhours.Average(x => x.MarginalCost);
+                    var avgflexPos = quarterhours.Average(x => x.FlexPos);
+                    var avgflexNeg = quarterhours.Average(x => x.FlexNeg);
+                    var avgCost = quarterhours.Average(x => x.MarginalCost);
 
-                for (int k = i; k <= i+3; k++)
-                {
-                    content[k].FlexPos = avgflexPos;
-                    content[k].FlexNeg = avgflexNeg;
-                    content[k].MarginalCost = avgCost;
-                }           
+                    for (int k = i; k <= i + 3; k++)
+                    {
+                        content[k].FlexPos = avgflexPos;
+                        content[k].FlexNeg = avgflexNeg;
+                        content[k].MarginalCost = avgCost;
+                    }           
             }
 
             return content;
@@ -197,7 +198,10 @@ namespace HkwgConverter.Core
 
             var content = this.ReadCsvFile(csvFile.FullName);
 
-            content = this.Transform(content);
+            if (businessSettings.FlattenDemandPerHour)
+            {
+                content = this.Transform(content);
+            }
 
             var deliveryDay = DateTime.Parse(content.FirstOrDefault().Time).Date;
             var version = workflowStore.GetNextInputVersionNumer(deliveryDay);

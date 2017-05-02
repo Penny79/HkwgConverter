@@ -4,10 +4,17 @@ namespace HkwgConverter.Model
 {
     public class BusinessConfigurationSection : ConfigurationSection
     {
-
-        public BusinessConfigurationSection()
+        [ConfigurationProperty("konstanteLeistungProStunde", DefaultValue = false, IsRequired = true)]
+        public bool FlattenDemandPerHour
         {
-
+            get
+            {
+                return (bool)this["konstanteLeistungProStunde"];
+            }
+            set
+            {
+                this["konstanteLeistungProStunde"] = value;
+            }
         }
 
         [ConfigurationProperty("geschaeftsart", DefaultValue = "Intraday-FLEX", IsRequired = true)]

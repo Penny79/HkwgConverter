@@ -122,8 +122,15 @@
     <None Include="packages.config" />
     <None Include="Sample\20170201_FLEXPOS_HKWG_01.xlsx" />
     <None Include="Sample\Anmeldung_20161212_11XSWCOTTBUS---M_11XENVIAMBILANZD_V0051.xlsx" />
+    <None Include="Sample\Beispieldateien.zip" />
+    <None Include="Sample\copy_input.bat" />
+    <None Include="Sample\input-neg-only.csv" />
+    <None Include="Sample\input-pos-neg.csv" />
+    <None Include="Sample\input-pos-only.csv" />
     <None Include="Sample\OB_NewSchedule_20160705_20160704050122_+02.csv" />
+    <None Include="Sample\outbound-beispiel.xlsx" />
     <None Include="Sample\Template_Kiss_Input.xlsx" />
+    <None Include="Sample\Testverzeichnisse_anlegen.bat" />
     <None Include="Settings.settings">
       <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -150,6 +157,9 @@
   <ItemGroup>
     <Content Include="enviam %281%29.ico" />
     <Content Include="enviam.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sample\root\Inbound\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

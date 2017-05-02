@@ -56,7 +56,7 @@ namespace HkwgConverter
                 var inboundConversion = new InboundConverter(appDataAccessor, Settings.Default, config);
                 inboundConversion.Run();
 
-                var outboundConversion = new OutboundConverter(appDataAccessor, Settings.Default);
+                var outboundConversion = new OutboundConverter(appDataAccessor, Settings.Default, config);
                 outboundConversion.Run();
             }
 

@@ -22,16 +22,17 @@ namespace HkwgConverter.Core
         private WorkflowStore workflowStore;
         private Settings configData;
         private const string outputCsvFilePrefix = "OB_NewSchedule_";
-            
+        private BusinessConfigurationSection businessSettings;
 
         #endregion
 
         #region ctor
 
-        public OutboundConverter(WorkflowStore store, Settings config)
+        public OutboundConverter(WorkflowStore store, Settings config, BusinessConfigurationSection businessSettings)
         {
             this.workflowStore = store;
             this.configData = config;
+            this.businessSettings = businessSettings;
         }
 
 
@@ -40,15 +41,47 @@ namespace HkwgConverter.Core
         #region private methods
 
 
+        private int DetermineColumnFromSettlementAreas(IXLWorksheet workssheet, bool isFlexPos)
+        {
+            string fromSettlementArea = isFlexPos ? this.businessSettings.PartnerCottbus.SettlementArea : this.businessSettings.PartnerEnviaM.SettlementArea;
+            string toSettlementArea = isFlexPos ? this.businessSettings.PartnerEnviaM.SettlementArea : this.businessSettings.PartnerCottbus.SettlementArea;
+
+            for(char k='C';k<='D';k++)
+            {
+                if (fromSettlementArea == workssheet.Cell(k + "4").Value.ToString() &&
+                toSettlementArea == workssheet.Cell(k + "5").Value.ToString())
+                    return (k - 'A') + 1;
+            }
+            
+            return -1;
+        }
+
         private List<HkwgInputItem> ReadFile(string fileName)
         {
             XLWorkbook workBook = new XLWorkbook(fileName);
             var worksheet = workBook.Worksheets.Skip(1).FirstOrDefault();
+
+            if(worksheet.Cell("D17").Value.ToString() != "MW")
+            {
+                string msg = "Die abgelegte Exceldatei hat nicht in Zelle D17 den Wert 'MW' stehen.";
+                log.Error(msg);
+                throw new InvalidOperationException(msg);
+            }
             
             var lastrow = worksheet.Rows()
                             .FirstOrDefault(x => x.FirstCell().Value.ToString().Contains("23:45"));
 
             var lines = new List<HkwgInputItem>();
+
+            int flexPosCol = DetermineColumnFromSettlementAreas(worksheet, true);
+            int flexNegCol = DetermineColumnFromSettlementAreas(worksheet, false);
+
+            if (flexPosCol ==-1 || flexNegCol == -1)
+            {
+                string msg = "Die Spalte mit den Leistungswerten für FlexPos oder FlexNeg konnte nicht identifiziert werden.";
+                log.Error(msg);
+                throw new InvalidOperationException(msg);
+            }
 
             for (int i = 18; i <= lastrow.RowNumber(); i++)
             {
@@ -57,8 +90,8 @@ namespace HkwgConverter.Core
                 var entry = new HkwgInputItem()
                 {
                     Time = currentRow.Cell(1).GetString(),
-                    FlexNeg = currentRow.Cell(3).GetValue<decimal>(),
-                    FlexPos = currentRow.Cell(4).GetValue<decimal>()
+                    FlexNeg = currentRow.Cell(flexNegCol).GetValue<decimal>(),
+                    FlexPos = currentRow.Cell(flexPosCol).GetValue<decimal>()
                 };
 
                 lines.Add(entry);
@@ -120,7 +153,7 @@ namespace HkwgConverter.Core
                 
                 sb.Append(time);
                 sb.Append(";");
-                sb.AppendLine(newDemandValue.ToString("0.000", CultureInfo.InvariantCulture));
+                sb.AppendLine(newDemandValue.ToString("0.00", CultureInfo.InvariantCulture));
             }
 
             var targetFile = Path.Combine(this.configData.OutboundDropFolder, outputCsvFilePrefix+ "_" + workflow.CsvFile);
