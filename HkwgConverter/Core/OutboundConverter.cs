@@ -21,7 +21,7 @@ namespace HkwgConverter.Core
         private static LogWrapper log = LogWrapper.GetLogger(LogManager.GetCurrentClassLogger());
         private WorkflowStore workflowStore;
         private Settings configData;
-        private const string outputCsvFilePrefix = "OB_NewSchedule_";
+        private const string outputCsvFilePrefix = "Cottbus_ConfirmedDeal_";
         private BusinessConfigurationSection businessSettings;
 
         #endregion
@@ -56,7 +56,7 @@ namespace HkwgConverter.Core
             return -1;
         }
 
-        private List<HkwgInputItem> ReadFile(string fileName)
+        private List<CsvLineItem> ReadFile(string fileName)
         {
             XLWorkbook workBook = new XLWorkbook(fileName);
             var worksheet = workBook.Worksheets.Skip(1).FirstOrDefault();
@@ -71,7 +71,7 @@ namespace HkwgConverter.Core
             var lastrow = worksheet.Rows()
                             .FirstOrDefault(x => x.FirstCell().Value.ToString().Contains("23:45"));
 
-            var lines = new List<HkwgInputItem>();
+            var lines = new List<CsvLineItem>();
 
             int flexPosCol = DetermineColumnFromSettlementAreas(worksheet, true);
             int flexNegCol = DetermineColumnFromSettlementAreas(worksheet, false);
@@ -87,11 +87,11 @@ namespace HkwgConverter.Core
             {
                 var currentRow = worksheet.Row(i);
 
-                var entry = new HkwgInputItem()
+                var entry = new CsvLineItem()
                 {
                     Time = currentRow.Cell(1).GetString(),
-                    FlexNeg = currentRow.Cell(flexNegCol).GetValue<decimal>(),
-                    FlexPos = currentRow.Cell(flexPosCol).GetValue<decimal>()
+                    FlexNegDemand = currentRow.Cell(flexNegCol).GetValue<decimal>(),
+                    FlexPosDemand = currentRow.Cell(flexPosCol).GetValue<decimal>()
                 };
 
                 lines.Add(entry);
@@ -115,48 +115,31 @@ namespace HkwgConverter.Core
             {
                 log.Error("Die Datei {0} kann nicht verarbeitet werden weil es für den Liefertag keinen offenen Prozess gibt.");
                 return;
-            }
+            }          
 
-            var originalData = this.ReadOriginalCsvFile(latestWorkflow.CsvFile);
-
-            this.WriteCsvFile(latestWorkflow, content, originalData);
+            this.WriteCsvFile(latestWorkflow, content);
         }
+       
 
-        private List<HkwgInputItem> ReadOriginalCsvFile(string fileName)
-        {            
-            var lines = File.ReadAllLines(Path.Combine(this.configData.InboundSuccessFolder, fileName))
-                .Skip(2)
-                .Select(x => x.Split(';'))
-                .Select(x => new HkwgInputItem()
-                {
-                    Time = x[0],
-                    FPLast = decimal.Parse(x[1], CultureInfo.InvariantCulture),
-                    FlexPos = decimal.Parse(x[2], CultureInfo.InvariantCulture),
-                    FlexNeg = decimal.Parse(x[3], CultureInfo.InvariantCulture),
-                    MarginalCost = decimal.Parse(x[4], CultureInfo.InvariantCulture),
-                });
-
-            return lines.ToList();
-        }
-
-        private void WriteCsvFile(Workflow workflow, List<HkwgInputItem> newData, List<HkwgInputItem> originalData)
+        private void WriteCsvFile(Workflow workflow, List<CsvLineItem> newData)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Startzeit; FP - Änderung");
-            sb.AppendLine("[yyyy-mm-dd hh:mm:ss];[mw,kw]");
+            sb.AppendLine("Zeitstempel;FlexPos_Change;FlexNeg_Change");
+            sb.AppendLine("[dd.MM.yyyy hh:mm:ss];[mw.kw];[mw.kw]");
 
-            for (int i = 0; i < originalData.Count; i++)
+            for (int i = 0; i < newData.Count; i++)
             {
-
-                var newDemandValue = originalData[i].FPLast + newData[i].FlexPos - newData[i].FlexNeg;
-                string time = DateTime.Parse(originalData[i].Time).ToString("yyyy-MM-dd HH:mm:ss");
+               
+                string time = DateTime.Parse(newData[i].Time).ToString("dd.MM.yyyy HH:mm:ss");
                 
                 sb.Append(time);
                 sb.Append(";");
-                sb.AppendLine(newDemandValue.ToString("0.00", CultureInfo.InvariantCulture));
+                sb.Append(newData[i].FlexPosDemand.ToString("0.00", CultureInfo.InvariantCulture));
+                sb.Append(";");
+                sb.AppendLine(newData[i].FlexNegDemand.ToString("0.00", CultureInfo.InvariantCulture));
             }
-
-            var targetFile = Path.Combine(this.configData.OutboundDropFolder, outputCsvFilePrefix+ "_" + workflow.CsvFile);
+            
+            var targetFile = Path.Combine(this.configData.OutboundDropFolder, outputCsvFilePrefix + workflow.CsvFile.Replace("Cottbus_FlexDayAhead_", ""));
 
             File.WriteAllText(targetFile, sb.ToString());    
                      

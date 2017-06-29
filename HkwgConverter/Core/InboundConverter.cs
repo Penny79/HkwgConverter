@@ -36,18 +36,18 @@ namespace HkwgConverter.Core
 
         #region private methods
 
-        private List<HkwgInputItem> ReadCsvFile(string fileName)
+        private List<CsvLineItem> ReadCsvFile(string fileName)
         {
             var lines = File.ReadAllLines(fileName)
                 .Skip(2)
                 .Select(x => x.Split(';'))
-                .Select(x => new HkwgInputItem()
+                .Select(x => new CsvLineItem()
                 {
                     Time = x[0],
-                    FPLast = decimal.Parse(x[1], System.Globalization.CultureInfo.InvariantCulture),
-                    FlexPos = decimal.Parse(x[2], System.Globalization.CultureInfo.InvariantCulture),
-                    FlexNeg = decimal.Parse(x[3], System.Globalization.CultureInfo.InvariantCulture),
-                    MarginalCost = decimal.Parse(x[4], System.Globalization.CultureInfo.InvariantCulture)
+                    FlexPosDemand = decimal.Parse(x[1], System.Globalization.CultureInfo.InvariantCulture),
+                    FlexPosMarginalCost = decimal.Parse(x[2], System.Globalization.CultureInfo.InvariantCulture),
+                    FlexNegDemand = decimal.Parse(x[3], System.Globalization.CultureInfo.InvariantCulture),
+                    FlexNegMarginalCost = decimal.Parse(x[4], System.Globalization.CultureInfo.InvariantCulture)
                 });
 
             return lines.ToList();
@@ -58,29 +58,31 @@ namespace HkwgConverter.Core
         /// </summary>
         /// <param name="content"></param>
         /// <returns></returns>
-        private List<HkwgInputItem> Transform(List<HkwgInputItem> content)
+        private List<CsvLineItem> Transform(List<CsvLineItem> content)
         {
             for (int i = 0; i < content.Count; i+=4)
             {
                 
                     var quarterhours = content.Skip(i).Take(4);
 
-                    var avgflexPos = quarterhours.Average(x => x.FlexPos);
-                    var avgflexNeg = quarterhours.Average(x => x.FlexNeg);
-                    var avgCost = quarterhours.Average(x => x.MarginalCost);
+                    var avgflexPosTotal = quarterhours.Average(x => x.FlexPosDemand);
+                    var avgflexPosCosts = quarterhours.Average(x => x.FlexPosMarginalCost);
+                    var avgflexNegTotal = quarterhours.Average(x => x.FlexNegDemand);
+                    var avgflexNegCosts = quarterhours.Average(x => x.FlexNegMarginalCost);
 
                     for (int k = i; k <= i + 3; k++)
                     {
-                        content[k].FlexPos = avgflexPos;
-                        content[k].FlexNeg = avgflexNeg;
-                        content[k].MarginalCost = avgCost;
+                        content[k].FlexPosDemand = avgflexPosTotal;
+                        content[k].FlexPosMarginalCost = avgflexPosCosts;
+                        content[k].FlexNegDemand = avgflexNegTotal;
+                        content[k].FlexNegMarginalCost = avgflexNegCosts;
                     }           
             }
 
             return content;
         }
 
-        private string GenerateKissFile(FileInfo csvFile, List<HkwgInputItem> data, DateTime deliveryDay, int nextVersion, bool isPurchase)
+        private string GenerateKissFile(FileInfo csvFile, List<CsvLineItem> data, DateTime deliveryDay, int nextVersion, bool isPurchase)
         {
             MemoryStream ms = new MemoryStream(Resource.Template_Kiss_Input);
 
@@ -100,15 +102,15 @@ namespace HkwgConverter.Core
                 int currentRow = rowOffset + i;
                 worksheet.Cell(currentRow, 1).SetValue(data[i].Time);
                 worksheet.Cell(currentRow, 2).SetValue(toTime);
-                worksheet.Cell(currentRow, 3).SetValue(isPurchase ? data[i].FlexPos : data[i].FlexNeg);
-                worksheet.Cell(currentRow, 4).SetValue(data[i].MarginalCost);
+                worksheet.Cell(currentRow, 3).SetValue(isPurchase ? data[i].FlexPosDemand : data[i].FlexNegDemand);
+                worksheet.Cell(currentRow, 4).SetValue(isPurchase ? data[i].FlexPosMarginalCost : data[i].FlexNegMarginalCost);
 
                 if ((i + 1) % 4 == 0)
                 {
                     worksheet.Range("A" + currentRow.ToString(), "D" + currentRow.ToString()).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                 }
 
-                totalEnergy += isPurchase ? data[i].FlexPos : data[i].FlexNeg;
+                totalEnergy += isPurchase ? data[i].FlexPosDemand : data[i].FlexNegDemand;
             }
 
             //Some styling
@@ -207,13 +209,13 @@ namespace HkwgConverter.Core
             var version = workflowStore.GetNextInputVersionNumer(deliveryDay);
 
             // Only generate the file if there any non zero demand values
-            if (content.Any(x => x.FlexPos != 0.0m))
+            if (content.Any(x => x.FlexPosDemand != 0.0m))
             {
                 flexPosFile = this.GenerateKissFile(csvFile, content, deliveryDay, version, true);
             }
 
             // Only generate the file if there any non zero demand values
-            if (content.Any(x => x.FlexNeg != 0.0m))
+            if (content.Any(x => x.FlexNegDemand != 0.0m))
             {
                 flexNegFile = this.GenerateKissFile(csvFile, content, deliveryDay, version, false);
             }
