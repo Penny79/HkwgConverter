@@ -17,7 +17,7 @@ namespace HkwgConverter.Core
 
         private static LogWrapper log = LogWrapper.GetLogger(LogManager.GetCurrentClassLogger());
 
-        private WorkflowStore workflowStore;
+        private TransactionRepository transactionRepository;
         private Settings configData;
         private BusinessConfigurationSection businessSettings;
 
@@ -25,9 +25,9 @@ namespace HkwgConverter.Core
 
         #region ctor
 
-        public InboundConverter(WorkflowStore store, Settings config, BusinessConfigurationSection businessSettings)
+        public InboundConverter(TransactionRepository store, Settings config, BusinessConfigurationSection businessSettings)
         {
-            this.workflowStore = store;
+            this.transactionRepository = store;
             this.configData = config;
             this.businessSettings = businessSettings;
         }
@@ -206,7 +206,7 @@ namespace HkwgConverter.Core
             }
 
             var deliveryDay = DateTime.Parse(content.FirstOrDefault().Time).Date;
-            var version = workflowStore.GetNextInputVersionNumer(deliveryDay);
+            var version = transactionRepository.GetNextInputVersionNumer(deliveryDay);
 
             // Only generate the file if there any non zero demand values
             if (content.Any(x => x.FlexPosDemand != 0.0m))
@@ -220,17 +220,23 @@ namespace HkwgConverter.Core
                 flexNegFile = this.GenerateKissFile(csvFile, content, deliveryDay, version, false);
             }
 
-            var appDataItem = new Workflow()
+            var transaction = new Transaction()
             {
                 CsvFile = csvFile.Name,
-                DeliveryDay = deliveryDay,
+                DeliveryDate = deliveryDay,
                 FlexPosFile = flexPosFile,
                 FlexNegFile = flexNegFile,
-                Timestamp = DateTime.Now,
+                CreateDate = DateTime.Now,
+                UpdateDate = DateTime.Now,
                 Version = version,
             };
 
-            this.workflowStore.Add(appDataItem);
+            //var newRow = this.transactionRepository.Set<Transaction>();
+            //newRow.Add(transaction);
+
+            this.transactionRepository.Transactions.Add(transaction);
+            this.transactionRepository.SaveChanges();
+
         }
 
         #endregion

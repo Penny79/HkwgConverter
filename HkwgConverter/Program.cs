@@ -2,6 +2,7 @@
 using HkwgConverter.Model;
 using NLog;
 using System;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 
@@ -38,7 +39,7 @@ namespace HkwgConverter
         }
 
         static void Main(string[] args)
-        {
+        {           
             log.Info("---------------------------------------------------------------------------------------------------");
             log.Info("Starte HKWG Converter");
             log.Info("---------------------------------------------------------------------------------------------------");
@@ -47,7 +48,7 @@ namespace HkwgConverter
 
             if (isValid)
             {
-                var appDataAccessor = new WorkflowStore(Settings.Default.WorkflowStoreFolder);
+                var appDataAccessor = new TransactionRepository();
 
                 var test = System.Configuration.ConfigurationManager.GetSection("businessSettings");
 

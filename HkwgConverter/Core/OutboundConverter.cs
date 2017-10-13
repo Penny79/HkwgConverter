@@ -19,7 +19,7 @@ namespace HkwgConverter.Core
 
 
         private static LogWrapper log = LogWrapper.GetLogger(LogManager.GetCurrentClassLogger());
-        private WorkflowStore workflowStore;
+        private TransactionRepository transactionRepository;
         private Settings configData;
         private const string outputCsvFilePrefix = "Cottbus_ConfirmedDeal_";
         private BusinessConfigurationSection businessSettings;
@@ -28,9 +28,9 @@ namespace HkwgConverter.Core
 
         #region ctor
 
-        public OutboundConverter(WorkflowStore store, Settings config, BusinessConfigurationSection businessSettings)
+        public OutboundConverter(TransactionRepository store, Settings config, BusinessConfigurationSection businessSettings)
         {
-            this.workflowStore = store;
+            this.transactionRepository = store;
             this.configData = config;
             this.businessSettings = businessSettings;
         }
@@ -109,19 +109,22 @@ namespace HkwgConverter.Core
 
             var deliveryDay = DateTime.Parse(content.FirstOrDefault().Time).Date;
 
-            var latestWorkflow = this.workflowStore.GetLatest(deliveryDay);
+            var currentTransaction = this.transactionRepository.GetLatest(deliveryDay);
 
-            if (latestWorkflow == null)
+            if (currentTransaction == null)
             {
                 log.Error("Die Datei {0} kann nicht verarbeitet werden weil es für den Liefertag keinen offenen Prozess gibt.");
                 return;
-            }          
+            }
 
-            this.WriteCsvFile(latestWorkflow, content);
+            currentTransaction.ConfirmedDealFile = excelFile.Name;
+            this.transactionRepository.SaveChanges();
+
+            this.WriteCsvFile(currentTransaction, content);
         }
        
 
-        private void WriteCsvFile(Workflow workflow, List<CsvLineItem> newData)
+        private void WriteCsvFile(Transaction transacion, List<CsvLineItem> newData)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Zeitstempel;FlexPos_Change;FlexNeg_Change");
@@ -139,7 +142,7 @@ namespace HkwgConverter.Core
                 sb.AppendLine(newData[i].FlexNegDemand.ToString("0.00", CultureInfo.InvariantCulture));
             }
             
-            var targetFile = Path.Combine(this.configData.OutboundDropFolder, outputCsvFilePrefix + workflow.CsvFile.Replace("Cottbus_FlexDayAhead_", ""));
+            var targetFile = Path.Combine(this.configData.OutboundDropFolder, outputCsvFilePrefix + transacion.CsvFile.Replace("Cottbus_FlexDayAhead_", ""));
 
             File.WriteAllText(targetFile, sb.ToString());    
                      
