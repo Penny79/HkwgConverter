@@ -97,7 +97,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\LogWrapper.cs" />
+    <Compile Include="Core\ConfirmedDealReader.cs" />
     <Compile Include="Model\Transaction.cs" />
     <Compile Include="Core\TransactionRepository.cs" />
     <Compile Include="Core\OutboundConverter.cs" />

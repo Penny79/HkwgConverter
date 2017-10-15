@@ -18,7 +18,7 @@ namespace HkwgConverter.Core
         #region fields
 
 
-        private static LogWrapper log = LogWrapper.GetLogger(LogManager.GetCurrentClassLogger());
+        private static ILogger log = LogManager.GetCurrentClassLogger();
         private TransactionRepository transactionRepository;
         private Settings configData;
         private const string outputCsvFilePrefix = "Cottbus_ConfirmedDeal_";
@@ -40,74 +40,15 @@ namespace HkwgConverter.Core
 
         #region private methods
 
-
-        private int DetermineColumnFromSettlementAreas(IXLWorksheet workssheet, bool isFlexPos)
-        {
-            string fromSettlementArea = isFlexPos ? this.businessSettings.PartnerCottbus.SettlementArea : this.businessSettings.PartnerEnviaM.SettlementArea;
-            string toSettlementArea = isFlexPos ? this.businessSettings.PartnerEnviaM.SettlementArea : this.businessSettings.PartnerCottbus.SettlementArea;
-
-            for(char k='C';k<='D';k++)
-            {
-                if (fromSettlementArea == workssheet.Cell(k + "4").Value.ToString() &&
-                toSettlementArea == workssheet.Cell(k + "5").Value.ToString())
-                    return (k - 'A') + 1;
-            }
-            
-            return -1;
-        }
-
-        private List<CsvLineItem> ReadFile(string fileName)
-        {
-            XLWorkbook workBook = new XLWorkbook(fileName);
-            var worksheet = workBook.Worksheets.Skip(1).FirstOrDefault();
-
-            if(worksheet.Cell("D17").Value.ToString() != "MW")
-            {
-                string msg = "Die abgelegte Exceldatei hat nicht in Zelle D17 den Wert 'MW' stehen.";
-                log.Error(msg);
-                throw new InvalidOperationException(msg);
-            }
-            
-            var lastrow = worksheet.Rows()
-                            .FirstOrDefault(x => x.FirstCell().Value.ToString().Contains("23:45"));
-
-            var lines = new List<CsvLineItem>();
-
-            int flexPosCol = DetermineColumnFromSettlementAreas(worksheet, true);
-            int flexNegCol = DetermineColumnFromSettlementAreas(worksheet, false);
-
-            if (flexPosCol ==-1 || flexNegCol == -1)
-            {
-                string msg = "Die Spalte mit den Leistungswerten für FlexPos oder FlexNeg konnte nicht identifiziert werden.";
-                log.Error(msg);
-                throw new InvalidOperationException(msg);
-            }
-
-            for (int i = 18; i <= lastrow.RowNumber(); i++)
-            {
-                var currentRow = worksheet.Row(i);
-
-                var entry = new CsvLineItem()
-                {
-                    Time = currentRow.Cell(1).GetString(),
-                    FlexNegDemand = currentRow.Cell(flexNegCol).GetValue<decimal>(),
-                    FlexPosDemand = currentRow.Cell(flexPosCol).GetValue<decimal>()
-                };
-
-                lines.Add(entry);
-            }
-            
-            return lines.ToList();
-        }
-
         /// <summary>
         /// Performs the conversion process from HKWG CSV into the KISS-Excel Format
         /// </summary>
         private void ProcessFile(FileInfo excelFile)
-        {                      
-            var content = this.ReadFile(excelFile.FullName);
+        {
+            var kissReader = new ConfirmedDealReader(this.businessSettings);
+            var timeSliceData = kissReader.Read(excelFile.FullName);
 
-            var deliveryDay = DateTime.Parse(content.FirstOrDefault().Time).Date;
+            var deliveryDay = DateTime.Parse(timeSliceData.Values.FirstOrDefault().Time).Date;
 
             var currentTransaction = this.transactionRepository.GetLatest(deliveryDay);
 
@@ -118,14 +59,15 @@ namespace HkwgConverter.Core
             }
 
             currentTransaction.ConfirmedDealFile = excelFile.Name;
+            currentTransaction.UpdateDate = DateTime.Now;
             this.transactionRepository.SaveChanges();
 
-            this.WriteCsvFile(currentTransaction, content);
-        }
-       
+            this.WriteCsvFile(currentTransaction, timeSliceData.Values.ToList());
+        }       
 
         private void WriteCsvFile(Transaction transacion, List<CsvLineItem> newData)
         {
+            
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Zeitstempel;FlexPos_Change;FlexNeg_Change");
             sb.AppendLine("[dd.MM.yyyy hh:mm:ss];[mw.kw];[mw.kw]");

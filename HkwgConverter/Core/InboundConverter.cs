@@ -15,7 +15,7 @@ namespace HkwgConverter.Core
     {
         #region fields
 
-        private static LogWrapper log = LogWrapper.GetLogger(LogManager.GetCurrentClassLogger());
+        private static ILogger log = LogManager.GetCurrentClassLogger();
 
         private TransactionRepository transactionRepository;
         private Settings configData;
@@ -82,7 +82,7 @@ namespace HkwgConverter.Core
             return content;
         }
 
-        private string GenerateKissFile(FileInfo csvFile, List<CsvLineItem> data, DateTime deliveryDay, int nextVersion, bool isPurchase)
+        private string GenerateKissFile(List<CsvLineItem> data, DateTime deliveryDay, int nextVersion, bool isPurchase)
         {
             MemoryStream ms = new MemoryStream(Resource.Template_Kiss_Input);
 
@@ -198,26 +198,35 @@ namespace HkwgConverter.Core
             string flexPosFile = null;
             string flexNegFile = null;
 
-            var content = this.ReadCsvFile(csvFile.FullName);
+            var flexibilities = this.ReadCsvFile(csvFile.FullName);
 
             if (businessSettings.FlattenDemandPerHour)
             {
-                content = this.Transform(content);
+                flexibilities = this.Transform(flexibilities);
             }
 
-            var deliveryDay = DateTime.Parse(content.FirstOrDefault().Time).Date;
+            var deliveryDay = DateTime.Parse(flexibilities.FirstOrDefault().Time).Date;
+
+            var lastTransactionforDeliveryDay = transactionRepository.GetLatest(deliveryDay);
+
+            if(lastTransactionforDeliveryDay != null)
+            {
+                // subtract the already booked numbers from the new ones
+                flexibilities = this.SubtractAmountsofPreviousTransaction(flexibilities, lastTransactionforDeliveryDay);
+            }
+
             var version = transactionRepository.GetNextInputVersionNumer(deliveryDay);
 
             // Only generate the file if there any non zero demand values
-            if (content.Any(x => x.FlexPosDemand != 0.0m))
+            if (flexibilities.Any(x => x.FlexPosDemand != 0.0m))
             {
-                flexPosFile = this.GenerateKissFile(csvFile, content, deliveryDay, version, true);
+                flexPosFile = this.GenerateKissFile(flexibilities, deliveryDay, version, true);
             }
 
             // Only generate the file if there any non zero demand values
-            if (content.Any(x => x.FlexNegDemand != 0.0m))
+            if (flexibilities.Any(x => x.FlexNegDemand != 0.0m))
             {
-                flexNegFile = this.GenerateKissFile(csvFile, content, deliveryDay, version, false);
+                flexNegFile = this.GenerateKissFile(flexibilities, deliveryDay, version, false);
             }
 
             var transaction = new Transaction()
@@ -237,6 +246,26 @@ namespace HkwgConverter.Core
             this.transactionRepository.Transactions.Add(transaction);
             this.transactionRepository.SaveChanges();
 
+        }
+
+        private List<CsvLineItem> SubtractAmountsofPreviousTransaction(List<CsvLineItem> flexibilities, Transaction lastTransactionforDeliveryDay)
+        {
+            var kissReader = new ConfirmedDealReader(this.businessSettings);
+
+            var excelFilePath = Path.Combine(this.configData.OutboundSuccessFolder, lastTransactionforDeliveryDay.ConfirmedDealFile);
+            var timeSliceData = kissReader.Read(excelFilePath);
+
+            foreach (var item in flexibilities)
+            {
+                if(timeSliceData.ContainsKey(item.Time))
+                {
+                    var previousItem = timeSliceData[item.Time];
+                    item.FlexNegDemand -= previousItem.FlexNegDemand;
+                    item.FlexPosDemand -= previousItem.FlexPosDemand;
+                }
+            }
+
+            return flexibilities;
         }
 
         #endregion

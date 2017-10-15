@@ -2,7 +2,6 @@
 using HkwgConverter.Model;
 using NLog;
 using System;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 
@@ -10,8 +9,8 @@ namespace HkwgConverter
 {
     class Program
     {
-        private static LogWrapper log = LogWrapper.GetLogger(LogManager.GetCurrentClassLogger());
-       
+        private static ILogger log = LogManager.GetCurrentClassLogger();
+
         private static bool ValidateConfiguration()
         {
             log.Info("Validiere Konfigurationseinstellungen.");
