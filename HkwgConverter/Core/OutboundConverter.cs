@@ -138,8 +138,9 @@ namespace HkwgConverter.Core
                 sb.Append(";");
                 sb.AppendLine(newData[i].FlexNegDemand.ToString("0.00", CultureInfo.InvariantCulture));
             }
-            
-            var targetFile = Path.Combine(this.configData.OutboundDropFolder, outputCsvFilePrefix + workflow.CsvFile.Replace("Cottbus_FlexDayAhead_", ""));
+
+            var targetFileName = outputCsvFilePrefix + workflow.DeliveryDay.ToString("yyyyMMdd") + "_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".csv";
+            var targetFile = Path.Combine(this.configData.OutboundDropFolder, targetFileName);
 
             File.WriteAllText(targetFile, sb.ToString());    
                      
